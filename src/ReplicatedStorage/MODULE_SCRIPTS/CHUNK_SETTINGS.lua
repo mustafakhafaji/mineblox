@@ -1,0 +1,15 @@
+local CHUNK_SETTINGS = {
+	
+	CHUNK_SIZE = 4,
+	CHUNK_DISTANCE = 12,
+	
+	MAX_CHUNK = 100,
+	
+	MAX_HEIGHT = 32,
+	MIN_HEIGHT = -32,
+	
+	BLOCK_SIZE = 3,
+	--SEA_LEVEL = -2
+}
+
+return CHUNK_SETTINGS
