@@ -1,2 +1,2 @@
-# mineblocks
-A remake of Minecraft in Roblox Studio using Lua
+# Mineblox
+A reimplementation of Minecraft written in Luau for Roblox
