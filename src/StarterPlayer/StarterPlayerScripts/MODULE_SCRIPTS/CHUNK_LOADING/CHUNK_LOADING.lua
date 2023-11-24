@@ -1,17 +1,14 @@
 local CHUNK_LOADING = {}
 
---// Services
-local S_RUN = game:GetService('RunService')
-local S_RS = game:GetService('ReplicatedStorage')
-local S_PLAYERS = game:GetService('Players')
+local RunService = game:GetService('RunService')
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local Players = game:GetService('Players')
 
---// Modules
 local M_WORLD_GENERATION = require(script.WORLD_GENERATION)
 local M_DROPPED_OBJECTS = require(script.DROPPED_OBJECTS)
-local M_CHUNK_SETTINGS = require(S_RS.MODULE_SCRIPTS.CHUNK_SETTINGS)
+local M_CHUNK_SETTINGS = require(ReplicatedStorage.MODULE_SCRIPTS.CHUNK_SETTINGS)
 
---// Constants
-local PLAYER = S_PLAYERS.LocalPlayer
+local PLAYER = Players.LocalPlayer
 
 local BLOCK_SIZE = M_CHUNK_SETTINGS['BLOCK_SIZE']
 
@@ -25,13 +22,12 @@ local LOAD_OFFSET = 2
 
 local CHUNKS_TO_RENDER_PER_UPDATE = 1
 
---// Variables
 local loaded_chunks = {}
 local rendered_chunks = {}
 
 local frames = 0
 
---[[ PRIVATE ]]--
+-- PRIVATE
 
 function render_chunks(to_render: {}): ()
 	
@@ -59,11 +55,6 @@ function render_chunks(to_render: {}): ()
 end
 
 
-
-
-
-
-
 local function unrender_chunks(to_unrender: {}): ()
 	
 	local current_updates = 0
@@ -89,10 +80,6 @@ local function unrender_chunks(to_unrender: {}): ()
 end
 
 
-
-
-
-
 --// Calls load_chunk() on every chunk to load
 local function load_chunks(to_load: {}): ()
 	
@@ -112,11 +99,6 @@ local function load_chunks(to_load: {}): ()
 end
 
 
-
-
-
-
-
 --// Calls unload_chunk on every chunk in to_unload
 local function unload_chunks(to_unload: {}): ()
 	
@@ -131,8 +113,6 @@ local function unload_chunks(to_unload: {}): ()
 		loaded_chunks[chunk_x][chunk_z] = nil
 	end
 end
-
-
 
 
 --// Returns chunks to render
@@ -167,9 +147,6 @@ function find_chunks_to_render(): ({})
 	
 	return to_render
 end
-
-
-
 
 
 --// Returns chunks to unrender
@@ -224,9 +201,6 @@ function find_chunks_to_unrender(should_be_rendered): ({})
 end
 
 
-
-
-
 --// Returns the closest chunks to the character
 function find_chunks_to_load(): ({number: {chunk_x: number, chunk_z: number}})
 	
@@ -257,9 +231,6 @@ function find_chunks_to_load(): ({number: {chunk_x: number, chunk_z: number}})
 	
 	return to_load
 end
-
-
-
 
 
 --// Returns chunks not within character's range
@@ -313,9 +284,6 @@ function find_chunks_to_unload(): ({})
 end
 
 
-
-
-
 --// Reorders table of chunks based on distance from player
 function reorder_chunk_priority(chunks: {}): ({})
 	
@@ -334,12 +302,14 @@ function reorder_chunk_priority(chunks: {}): ({})
 end
 
 
-
-
-
-function handle_frame(): ()
+function handleFrame(): ()
 	
-	if not PLAYER.Character or not PLAYER.Character:FindFirstChild('HumanoidRootPart') then return end
+	if 
+		not PLAYER.Character 
+		or not PLAYER.Character:FindFirstChild('HumanoidRootPart') 
+	then
+		return
+	end
 	
 	frames += 1
 	
@@ -363,13 +333,8 @@ function handle_frame(): ()
 	end
 end
 
+-- EVENTS
 
-
---[[ EVENTS ]]--
-
---// Update chunks 
-S_RUN.Heartbeat:Connect(handle_frame)
-
-
+RunService.Heartbeat:Connect(handleFrame)
 
 return CHUNK_LOADING

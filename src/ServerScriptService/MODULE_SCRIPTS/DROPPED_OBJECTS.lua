@@ -1,19 +1,17 @@
 local DROPPED_OBJECTS = {}
 
---// Services
-local S_RS = game:GetService('ReplicatedStorage')
-local S_PLAYERS = game:GetService('Players')
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local Players = game:GetService('Players')
 
---// Modules
-local M_CHUNKS_UTIL = require(S_RS.MODULE_SCRIPTS.CHUNKS_UTIL)
+local Modules = ReplicatedStorage.MODULE_SCRIPTS
+local ChunksUtil = require(Modules.CHUNKS_UTIL)
 
---// Variables
 local dropped_objects_data = {}
 
---[[ PRIVATE ]]--
+-- PRIVATE
 
 --// Fills in missing tables in dropped_objects_data
-function create_dropped_objects_tables(chunk_x: number, chunk_z: number, x: number, z: number, y: number)
+function create_dropped_objects_tables(chunk_x: number, chunk_z: number, x: number, z: number, y: number): ()
 
 	if not dropped_objects_data[chunk_x] then
 		dropped_objects_data[chunk_x] = {}
@@ -37,11 +35,9 @@ function create_dropped_objects_tables(chunk_x: number, chunk_z: number, x: numb
 end
 
 
-
-
-function handle_dropped_objects(object_name, world_position)
+function handle_dropped_objects(objectName: string, worldPosition: Vector3): ()
 	
-	local chunk_position = M_CHUNKS_UTIL.world_to_chunk_position(world_position)
+	local chunk_position = ChunksUtil.world_to_chunk_position(worldPosition)
 
 	local chunk_x = chunk_position[1]
 	local chunk_z = chunk_position[2]
@@ -67,7 +63,7 @@ function handle_get_dropped_objects(player: Player, chunk_x: number, chunk_z: nu
 		
 		local dropped_objects_data = dropped_objects_data[chunk_x][chunk_z]
 		
-		S_RS.REMOTES.GetDroppedObjects:FireClient(player, chunk_x, chunk_z, dropped_objects_data)
+		ReplicatedStorage.REMOTES.GetDroppedObjects:FireClient(player, chunk_x, chunk_z, dropped_objects_data)
 	end
 end
 
@@ -77,7 +73,7 @@ end
 --// Updates data, adding mined block
 function handle_mined_block(player: Player, object_name: string, world_position: Vector3)
 	
-	local chunk_position = M_CHUNKS_UTIL.world_to_chunk_position(world_position)
+	local chunk_position = ChunksUtil.world_to_chunk_position(world_position)
 
 	local chunk_x = chunk_position[1]
 	local chunk_z = chunk_position[2]
@@ -141,20 +137,19 @@ function handle_update_dropped_objects(player: Player, to_move: {}, destination:
 	local to_update = {destination_chunk_x, destination_chunk_z, destination_x, destination_z, destination_y, objects_at_destination}
 	
 	-- Send players data
-	for _, current_player in S_PLAYERS:GetPlayers() do
+	for _, current_player in Players:GetPlayers() do
 		if current_player == player then continue end
 		
-		S_RS.REMOTES.UpdateDroppedObjects:FireClient(current_player, to_move, to_update)
+		ReplicatedStorage.REMOTES.UpdateDroppedObjects:FireClient(current_player, to_move, to_update)
 	end
 end
 
 
+-- EVENTS
 
---[[ EVENTS ]]--
-
-S_RS.REMOTES.GetDroppedObjects.OnServerEvent:Connect(handle_get_dropped_objects)
-S_RS.REMOTES.BlockMined.OnServerEvent:Connect(handle_mined_block)
-S_RS.REMOTES.DropObjects.OnServerEvent:Connect(handle_dropped_objects)
-S_RS.REMOTES.UpdateDroppedObjects.OnServerEvent:Connect(handle_update_dropped_objects)
+ReplicatedStorage.REMOTES.GetDroppedObjects.OnServerEvent:Connect(handle_get_dropped_objects)
+ReplicatedStorage.REMOTES.BlockMined.OnServerEvent:Connect(handle_mined_block)
+ReplicatedStorage.REMOTES.DropObjects.OnServerEvent:Connect(handle_dropped_objects)
+ReplicatedStorage.REMOTES.UpdateDroppedObjects.OnServerEvent:Connect(handle_update_dropped_objects)
 
 return DROPPED_OBJECTS
