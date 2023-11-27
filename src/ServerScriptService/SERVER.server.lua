@@ -1,9 +1,6 @@
---// Services
-local S_SSS = game:GetService('ServerScriptService')
+local ServerScriptService = game:GetService('ServerScriptService')
 
---// Modules 
-local MODULES = S_SSS.MODULE_SCRIPTS
+local MODULES = ServerScriptService.MODULE_SCRIPTS
 
-local M_TERRAIN_GENERATION = require(MODULES.TERRAIN_GENERATION)
-local M_DROPPED_OBJECTS = require(MODULES.DROPPED_OBJECTS)
-
+local TERRAIN_GENERATION = require(MODULES.TERRAIN_GENERATION)
+local DROPPED_OBJECTS = require(MODULES.DROPPED_OBJECTS)

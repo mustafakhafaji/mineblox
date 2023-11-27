@@ -1,53 +1,31 @@
 --!strict
-
 local Players = game:GetService('Players')
 local ReplicatedFirst = game:GetService('ReplicatedFirst')
 local TweenService = game:GetService('TweenService')
 local UserInputService = game:GetService('UserInputService')
 
+local LoadingScreenMessages = require(ReplicatedFirst.LoadingScreenMessages)
+
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild('PlayerGui')
 local LoadingScreenGui = ReplicatedFirst:WaitForChild('LoadingScreenGui')
-local loadingBarFolder = LoadingScreenGui:WaitForChild('LoadingBarFolder')
-local loadingMessageFolder = LoadingScreenGui:WaitForChild('LoadingMessageFolder')
+local LoadingBar = LoadingScreenGui:WaitForChild('LoadingBar')
+local LoadingMessage = LoadingScreenGui:WaitForChild('LoadingMessage')
 
 local X_PER_SECOND = 150
-
-local LOAD_INFO = 
-	{
-		{
-			20,
-			'downloading textures',
-		},
-		
-		{
-			60,
-			'building terrain',
-		},
-		
-		{
-			100,
-			'connecting to the server',
-		},
-		
-		{
-			200,
-			'joining world',
-		}
-	}
 
 -- PRIVATE
 
 function updateMessage(message: string): ()
-	for _, gui in loadingMessageFolder:GetChildren() do
+	for _, gui in LoadingMessage:GetChildren() do
 		gui.Text = message
 	end
 end
 
 
-local function updateBar(xSize: number): ()
+function updateBarLength(xSize: number): ()
 	
-	local barFrame = loadingBarFolder.BarFrame
+	local barFrame = LoadingBar.BarFrame
 
 	local tween = TweenService:Create(
 		barFrame,
@@ -64,23 +42,25 @@ function init(): ()
 
 	LoadingScreenGui.Parent = PlayerGui
 	ReplicatedFirst:RemoveDefaultLoadingScreen()
+
 	UserInputService.MouseIconEnabled = false
 	UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
 
-	for _, info in LOAD_INFO do
+	for i = 1, 4 do
 	
-		local x_size = info[1]
-		local message = info[2]
+		local xSize = i * 20
+		local message = LoadingScreenMessages[i]
 		
-		updateBar(x_size)
+		updateBarLength(xSize)
 		updateMessage(message)
 		
-		task.wait(x_size / X_PER_SECOND)
+		task.wait(xSize / X_PER_SECOND)
 	end
 	
 	UserInputService.MouseBehavior = Enum.MouseBehavior.Default
 	LoadingScreenGui:Destroy()
 end
 
--- Init
+
+-- Initalize
 init()

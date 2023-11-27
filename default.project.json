@@ -2,29 +2,34 @@
   "name": "Mineblox",
   "tree": {
     "$className": "DataModel",
+
     "ReplicatedFirst": {
       "$className": "ReplicatedFirst",
-      "$ignoreUnknownInstances": true,
-      "$path": "src/ReplicatedFirst"
+      "$path": "src/ReplicatedFirst",
+      "$ignoreUnknownInstances": true
     },
+
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
-      "$ignoreUnknownInstances": true,
-      "$path": "src/ReplicatedStorage"
+      "$path": "src/ReplicatedStorage",
+      "$ignoreUnknownInstances": true
     },
+
     "ServerScriptService": {
       "$className": "ServerScriptService",
-      "$ignoreUnknownInstances": true,
-      "$path": "src/ServerScriptService"
+      "$path": "src/ServerScriptService",
+      "$ignoreUnknownInstances": true
     },
+    
     "StarterPlayer": {
       "$className": "StarterPlayer",
+      "$ignoreUnknownInstances": true,
+      
       "StarterPlayerScripts": {
         "$className": "StarterPlayerScripts",
-        "$ignoreUnknownInstances": true,
-        "$path": "src/StarterPlayer/StarterPlayerScripts"
-      },
-      "$ignoreUnknownInstances": true
+        "$path": "src/StarterPlayer/StarterPlayerScripts",
+        "$ignoreUnknownInstances": true
+      }
     }
   }
 }
