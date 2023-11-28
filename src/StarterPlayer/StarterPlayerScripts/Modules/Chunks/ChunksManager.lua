@@ -1,4 +1,4 @@
-local CHUNK_LOADING = {}
+local ChunkLoading = {}
 
 local RunService = game:GetService('RunService')
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
@@ -8,12 +8,9 @@ local M_WORLD_GENERATION = require(script.WORLD_GENERATION)
 local M_DROPPED_OBJECTS = require(script.DROPPED_OBJECTS)
 local M_CHUNK_SETTINGS = require(ReplicatedStorage.MODULE_SCRIPTS.CHUNK_SETTINGS)
 
-local PLAYER = Players.LocalPlayer
+local Player = Players.LocalPlayer
 
 local BLOCK_SIZE = M_CHUNK_SETTINGS['BLOCK_SIZE']
-
-local MAX_HEIGHT = M_CHUNK_SETTINGS['MAX_HEIGHT']
-local MIN_HEIGHT = M_CHUNK_SETTINGS['MIN_HEIGHT']
 
 local CHUNK_SIZE = M_CHUNK_SETTINGS['CHUNK_SIZE']
 local CHUNK_DISTANCE = M_CHUNK_SETTINGS['CHUNK_DISTANCE']
@@ -22,18 +19,18 @@ local LOAD_OFFSET = 2
 
 local CHUNKS_TO_RENDER_PER_UPDATE = 1
 
-local loaded_chunks = {}
+local loadedChunks = {}
 local rendered_chunks = {}
 
 local frames = 0
 
 -- PRIVATE
 
-function render_chunks(to_render: {}): ()
+function renderChunks(toRender: {}): ()
 	
 	local current_updates = 0
 	
-	for _, chunk in to_render do
+	for _, chunk in toRender do
 
 		local chunk_x = chunk[1]
 		local chunk_z = chunk[2]
@@ -55,7 +52,7 @@ function render_chunks(to_render: {}): ()
 end
 
 
-local function unrender_chunks(to_unrender: {}): ()
+function unrenderChunks(to_unrender: {}): ()
 	
 	local current_updates = 0
 	
@@ -80,8 +77,8 @@ local function unrender_chunks(to_unrender: {}): ()
 end
 
 
---// Calls load_chunk() on every chunk to load
-local function load_chunks(to_load: {}): ()
+-- Calls load_chunk() on every chunk to load
+function load_chunks(to_load: {}): ()
 	
 	for _, chunk in to_load do
 
@@ -91,34 +88,34 @@ local function load_chunks(to_load: {}): ()
 		M_WORLD_GENERATION.load_chunk(chunk_x, chunk_z)
 		M_DROPPED_OBJECTS.load_chunk(chunk_x, chunk_z)
 		
-		if not loaded_chunks[chunk_x] then
-			loaded_chunks[chunk_x] = {}
+		if not loadedChunks[chunk_x] then
+			loadedChunks[chunk_x] = {}
 		end
-		loaded_chunks[chunk_x][chunk_z] = true
+		loadedChunks[chunk_x][chunk_z] = true
 	end
 end
 
 
---// Calls unload_chunk on every chunk in to_unload
-local function unload_chunks(to_unload: {}): ()
+-- Calls unloadChunk on every chunk in toUnload
+function unloadChunks(toUnload: {}): ()
 	
-	for _, chunk in to_unload do
+	for _, chunk in toUnload do
 		
 		local chunk_x = chunk[1]
 		local chunk_z = chunk[2]
 		
-		M_WORLD_GENERATION.unload_chunk(chunk_x, chunk_z)
-		M_DROPPED_OBJECTS.unload_chunk(chunk_x, chunk_z)
+		M_WORLD_GENERATION.unloadChunk(chunk_x, chunk_z)
+		M_DROPPED_OBJECTS.unloadChunk(chunk_x, chunk_z)
 		
-		loaded_chunks[chunk_x][chunk_z] = nil
+		loadedChunks[chunk_x][chunk_z] = nil
 	end
 end
 
 
---// Returns chunks to render
+-- Returns chunks to render
 function find_chunks_to_render(): ({})
 	
-	local character_position = PLAYER.Character.HumanoidRootPart.Position
+	local character_position = Player.Character.HumanoidRootPart.Position
 
 	local chunk_x = math.floor(character_position.X / (CHUNK_SIZE * BLOCK_SIZE))
 	local chunk_z = math.floor(character_position.Z / (CHUNK_SIZE * BLOCK_SIZE))
@@ -149,10 +146,10 @@ function find_chunks_to_render(): ({})
 end
 
 
---// Returns chunks to unrender
-function find_chunks_to_unrender(should_be_rendered): ({})
+-- Returns chunks to unrender
+function find_chunks_to_unrender(should_be_rendered: {}): ({})
 	
-	local character_position = PLAYER.Character.HumanoidRootPart.Position
+	local character_position = Player.Character.HumanoidRootPart.Position
 
 	local chunk_x = math.floor(character_position.X / (CHUNK_SIZE * BLOCK_SIZE))
 	local chunk_z = math.floor(character_position.Z / (CHUNK_SIZE * BLOCK_SIZE))
@@ -201,10 +198,10 @@ function find_chunks_to_unrender(should_be_rendered): ({})
 end
 
 
---// Returns the closest chunks to the character
+-- Returns the closest chunks to the character
 function find_chunks_to_load(): ({number: {chunk_x: number, chunk_z: number}})
 	
-	local character_position = PLAYER.Character.HumanoidRootPart.Position
+	local character_position = Player.Character.HumanoidRootPart.Position
 
 	local chunk_x = math.floor(character_position.X / (CHUNK_SIZE * BLOCK_SIZE))
 	local chunk_z = math.floor(character_position.Z / (CHUNK_SIZE * BLOCK_SIZE))
@@ -219,7 +216,7 @@ function find_chunks_to_load(): ({number: {chunk_x: number, chunk_z: number}})
 			local position_x = chunk_x + x
 			local position_z = chunk_z + z
 			
-			if loaded_chunks[position_x] and loaded_chunks[position_x][position_z] then continue end -- Skip if already loaded
+			if loadedChunks[position_x] and loadedChunks[position_x][position_z] then continue end -- Skip if already loaded
 			
 			local distance = x * x + z * z
 			
@@ -233,16 +230,16 @@ function find_chunks_to_load(): ({number: {chunk_x: number, chunk_z: number}})
 end
 
 
---// Returns chunks not within character's range
+-- Returns chunks not within character's range
 function find_chunks_to_unload(): ({})
 	
-	local character_position = PLAYER.Character.HumanoidRootPart.Position
+	local character_position = Player.Character.HumanoidRootPart.Position
 
 	local chunk_x = math.floor(character_position.X / (CHUNK_SIZE * BLOCK_SIZE))
 	local chunk_z = math.floor(character_position.Z / (CHUNK_SIZE * BLOCK_SIZE))
 
 	local should_be_loaded = {}
-	local to_unload = {}
+	local toUnload = {}
 	
 	-- Find what chunks should be loaded
 	local radius = CHUNK_DISTANCE + LOAD_OFFSET
@@ -265,29 +262,29 @@ function find_chunks_to_unload(): ({})
 	end
 	
 	-- Find what loaded chunks aren't in should_be_loaded
-	for x in loaded_chunks do
-		for z in loaded_chunks[x] do
+	for x in loadedChunks do
+		for z in loadedChunks[x] do
 			
 			if not should_be_loaded[x] then
-				table.insert(to_unload, {x, z})
+				table.insert(toUnload, {x, z})
 				continue
 			end
 			
 			if not should_be_loaded[x][z] then
-				table.insert(to_unload, {x, z})
+				table.insert(toUnload, {x, z})
 				continue
 			end
 		end
 	end
 	
-	return to_unload
+	return toUnload
 end
 
 
---// Reorders table of chunks based on distance from player
-function reorder_chunk_priority(chunks: {}): ({})
+-- Reorders table of chunks based on distance from player
+function reorderChunkPriority(chunks: {}): ({})
 	
-	local character_position = PLAYER.Character.HumanoidRootPart.Position
+	local character_position = Player.Character.HumanoidRootPart.Position
 	
 	local player_chunk_x = math.floor(character_position.X / (CHUNK_SIZE * BLOCK_SIZE))
 	local player_chunk_z = math.floor(character_position.Z / (CHUNK_SIZE * BLOCK_SIZE))
@@ -304,37 +301,35 @@ end
 
 function handleFrame(): ()
 	
+	frames += 1
+
 	if 
-		not PLAYER.Character 
-		or not PLAYER.Character:FindFirstChild('HumanoidRootPart') 
+		not Player.Character 
+		or not Player.Character:FindFirstChild('HumanoidRootPart') 
+		or frames % 4 ~= 0
 	then
 		return
 	end
+		
+	local chunks_to_load = find_chunks_to_load()
+	load_chunks(chunks_to_load)
 	
-	frames += 1
+	local chunks_to_render = find_chunks_to_render()
+	chunks_to_render = reorderChunkPriority(chunks_to_render)
+	renderChunks(chunks_to_render)
 	
-	if frames % 4 == 0 then -- Load and render chunks
-		
-		local chunks_to_load = find_chunks_to_load()
-		load_chunks(chunks_to_load)
-		
-		local chunks_to_render = find_chunks_to_render()
-		chunks_to_render = reorder_chunk_priority(chunks_to_render)
-		render_chunks(chunks_to_render)
-		
-		local chunks_to_unload = find_chunks_to_unload()
-		unload_chunks(chunks_to_unload)
-		
-		local chunks_to_unrender = find_chunks_to_unrender()
-		chunks_to_unrender = reorder_chunk_priority(chunks_to_unrender)
-		unrender_chunks(chunks_to_unrender)
-		
-		frames = 0
-	end
+	local chunks_to_unload = find_chunks_to_unload()
+	unloadChunks(chunks_to_unload)
+	
+	local chunks_to_unrender = find_chunks_to_unrender()
+	chunks_to_unrender = reorderChunkPriority(chunks_to_unrender)
+	unrenderChunks(chunks_to_unrender)
+	
+	frames = 0
 end
 
 -- EVENTS
 
 RunService.Heartbeat:Connect(handleFrame)
 
-return CHUNK_LOADING
+return ChunkLoading

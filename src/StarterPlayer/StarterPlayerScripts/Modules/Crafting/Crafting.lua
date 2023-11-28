@@ -1,71 +1,82 @@
-local CRAFTING = {}
+local Crafting = {}
 
---// MODULES
-local M_CRAFTING_RECIPES = require(script.CRAFTING_RECIPES)
+local StarterPlayer = game:GetService('StarterPlayer')
 
---[[ PRIVATE ]]--
+local Modules = StarterPlayer.StarterCharacterScripts.Modules
+local CraftingRecipes = require(Modules.Crafting.CraftingRecipes)
 
---// Returns true if 2 tables are equal
-local function are_tables_equal(table_1 , table_2)
-	for i, v in next, table_1 do if table_2[i] ~= v then return false end end
-	for i, v in next, table_2 do if table_1[i] ~= v then return false end end
+-- PRIVATE
+
+-- Returns true if 2 tables are equal
+function areTablesEqual(table1: {}, table2: {}): (boolean)
+
+	for i, v in next, table1 do
+		if table2[i] ~= v then 
+			return false 
+		end 
+	end
+
+	for i, v in next, table2 do
+		if table1[i] ~= v then 
+			return false 
+		end 
+	end
+
 	return true
 end
 
 
-
---// Removes empty rows
-local function shrink_rows(items: {}, rows: number, columns: number): ({}, number)
+-- Removes empty rows
+function shrinkRows(items: {}, rows: number, columns: number): ({}, number)
 	
-	local shrunk_items = {}
+	local shrunkItems = {}
 	
 	for _, row in items do
 		
-		local is_empty = true
+		local isEmpty = true
 		
 		for _, ingredient in row do
 			if ingredient ~= 'X' then
-				is_empty = false
+				isEmpty = false
 			end
 		end
 		
-		if not is_empty then
+		if not isEmpty then
 			local to_add = {}
 			for _, ingredient in row do
 				table.insert(to_add, ingredient)
 			end
-			table.insert(shrunk_items, to_add)
+			table.insert(shrunkItems, to_add)
 		else
 			rows -= 1
 		end
 	end
 	
-	return shrunk_items, rows
+	return shrunkItems, rows
 end
 
 
-
---// True if left and right columns are not empty, false if one in either, or empty
-local function is_left_and_right_filled(items: {}, rows: number, columns: number): boolean
+-- True if left and right columns are not empty, false if one in either, or empty
+function isLeftAndRightFilled(items: {}, rows: number, columns: number): (boolean)
 	
-	local left_empty = true
-	local right_empty = true
+	local leftEmpty = true
+	local rightEmpty = true
 	
 	-- Check left side
 	for row = 1, rows do
 		if items[row][1] ~= 'X' then
-			left_empty = false
+			leftEmpty = false
 		end
 	end
 	
 	-- Check right side
 	for row = 1, rows do
 		if items[row][3] ~= 'X' then
-			right_empty = false
+			rightEmpty = false
 		end
 	end
 	
-	if not (left_empty and right_empty) then
+	if not (leftEmpty and rightEmpty) then
 		return true
 	else
 		return false
@@ -73,45 +84,42 @@ local function is_left_and_right_filled(items: {}, rows: number, columns: number
 end
 
 
-
---// Removes empty columns from items list
-local function shrink_columns(items: {}, rows: number, columns: number): ({}, number)
+-- Removes empty columns from items list
+function shrinkColumns(items: {}, rows: number, columns: number): ({}, number)
 	
 	-- If left and right columns arent empty then dont clear any columns
 	if columns == 3 then
-		if is_left_and_right_filled(items, rows, columns) then
+		if isLeftAndRightFilled(items, rows, columns) then
 			return items, columns
 		end
 	end
 	
-	local shrunk_items = table.clone(items)
+	local shrunkItems = table.clone(items)
 	
 	for column = columns, 1, -1 do
 		
-		local is_empty = true
+		local isEmpty = true
 		
 		for row = 1, rows do
 			if items[row][column] ~= 'X' then
-				is_empty = false
+				isEmpty = false
 			end
 		end
 		
-		if is_empty then
+		if isEmpty then
 			for row = 1, rows do
-				table.remove(shrunk_items[row], column)
+				table.remove(shrunkItems[row], column)
 			end
 			columns -= 1
 		end
 	end
 
-	return shrunk_items, columns
+	return shrunkItems, columns
 end
 
 
-
-
---// Converts a 2D array into a 1D table
-local function convert_to_1D(items: {})
+-- Converts a 2D array into a 1D table
+function convertTo1D(items: {}): ({})
 	
 	local ingredients = {}
 	
@@ -126,37 +134,34 @@ local function convert_to_1D(items: {})
 end
 
 
+-- PUBLIC
 
-
---[[ PUBLIC ]]--
-
---// Returns an item result given a 2D array of items (ingredients)
-function CRAFTING.craft(items: {}): (string)
+-- Returns an item result given a 2D array of items (ingredients)
+function Crafting.craft(items: {}): (string, number)
 		
 	local rows = #items
 	local columns = #items[1]
 	
-	items, rows = shrink_rows(items, rows, columns)
-	items, columns = shrink_columns(items, rows, columns)
-	items = convert_to_1D(items)
+	items, rows = shrinkRows(items, rows, columns)
+	items, columns = shrinkColumns(items, rows, columns)
+	items = convertTo1D(items)
 	
 	-- Check if it matches a recipe
-	local possible_recipes = M_CRAFTING_RECIPES[rows][columns]
+	local possibleRecipes = CraftingRecipes[rows][columns]
 	
-	for _, item in possible_recipes do
+	for _, item in possibleRecipes do
 		
 		local recipe = item['Recipe']
 		
-		if are_tables_equal(recipe, items) then
+		if areTablesEqual(recipe, items) then
 			
 			local quantity = item['Quantity']
 			local result = item['Result']
 			
-			return result
+			return result, quantity
 		end
 	end
 end
 
 
-
-return CRAFTING
+return Crafting

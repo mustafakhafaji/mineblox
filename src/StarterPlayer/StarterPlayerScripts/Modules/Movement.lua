@@ -27,7 +27,7 @@ local SPRINT_FOV = DEFAULT_FOV + 20
 -- PRIVATE
 
 -- Start player sprint speed and effects
-function startSprint()
+function startSprint(): ()
 	
 	sprinting = true
 
@@ -54,7 +54,7 @@ end
 
 
 -- End player sprint speed and effects
-function endSprint()
+function endSprint(): ()
 	
 	sprinting = false
 
@@ -79,7 +79,7 @@ end
 
 
 -- Start player crouching speed and effects
-function startCrouch()
+function startCrouch(): ()
 	
 	crouching = true
 	
@@ -106,7 +106,7 @@ end
 
 
 -- End player crouching speed and effects
-function endCrouch()
+function endCrouch(): ()
 	
 	crouching = false
 	
@@ -139,8 +139,8 @@ end
 
 -- PUBLIC
 
--- Freezes player; unable to move 
-function Movement.freezePlayer()
+-- Freezes player
+function Movement.freezePlayer(): ()
 	frozen = true
 	
 	endSprint()
@@ -153,7 +153,7 @@ end
 
 
 -- Unfreezes player; able to move 
-function Movement.unfreezePlayer()
+function Movement.unfreezePlayer(): ()
 	frozen = false
 	
 	local humanoid = Player.Character:FindFirstChild('Humanoid')
@@ -162,8 +162,8 @@ function Movement.unfreezePlayer()
 end
 
 
-UserInputService.InputBegan:Connect(function(input, typing)
-	
+function handleInputBegan(input: InputObject, typing: boolean): ()
+
 	if 
 		not Player.Character 
 		or frozen
@@ -198,24 +198,26 @@ UserInputService.InputBegan:Connect(function(input, typing)
 			if 
 				not sprinting 
 				and not crouching 
-				and isMoving then
+				and isMoving 
+			then
 				startSprint()
 			elseif sprinting then
 				endSprint()
 			end
 		end
 	end
-end)
+end
 
-UserInputService.InputEnded:Connect(function(input, typing)
-	
+
+function handleInputEnded(input: InputObject, typing: boolean): ()
+
 	if 
 		not Player.Character 
 		or typing 
 	then 
 		return 
 	end
-	
+
 	if input.UserInputType == Enum.UserInputType.Keyboard then
 		if input.KeyCode == Enum.KeyCode.W then
 			if sprinting then
@@ -229,15 +231,14 @@ UserInputService.InputEnded:Connect(function(input, typing)
 			end
 		end
 	end
-	
-end)
+end
 
 -- EVENTS
 
+UserInputService.InputBegan:Connect(handleInputBegan)
+UserInputService.InputEnded:Connect(handleInputEnded)
 
 -- Init
-
--- Initalizes movement
 workspace.Camera.FieldOfView = DEFAULT_FOV
 
 return Movement

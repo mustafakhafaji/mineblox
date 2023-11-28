@@ -1,8 +1,8 @@
 return {
 
-    'Downloading textures',
-    'Building terrain',
-    'Connecting to the server',
-    'Joining world',
+    'Downloading textures..',
+    'Building terrain..',
+    'Connecting to the server..',
+    'Joining world..',
 
 }

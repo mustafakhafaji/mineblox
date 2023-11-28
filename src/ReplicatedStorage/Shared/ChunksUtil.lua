@@ -10,15 +10,15 @@ local BLOCK_SIZE = ChunkSettings['BLOCK_SIZE']
 
 -- PRIVATE
 
-function floorDivide(n,m)
-	return math.floor(n/m)
+function floorDivide(n, m): (number)
+	return math.floor(n / m)
 end
 
 
 -- PUBLIC
 
 -- Converts [chunk_x][chunk_z][x][z][y] position to a Vector3(x, y, z)
-function ChunksUtil.chunkToWorldPosition(chunkX: number, chunkZ: number, xPos: number, zPos: number, yPos: number)
+function ChunksUtil.chunkToWorldPosition(chunkX: number, chunkZ: number, xPos: number, zPos: number, yPos: number): (Vector3)
 
 	local x = (chunkX * CHUNK_SIZE + xPos) * BLOCK_SIZE
 	local z = (chunkZ * CHUNK_SIZE + zPos) * BLOCK_SIZE
@@ -29,7 +29,7 @@ end
 
 
 -- Converts Vector3(x, y, z) position to a [chunk_x][chunk_z][x][z][y] 
-function ChunksUtil.worldToChunkPosition(coordinate : Vector3): ({string: {}})
+function ChunksUtil.worldToChunkPosition(coordinate : Vector3): ({number: number})
 
 	local chunk_x =  floorDivide((coordinate.X - BLOCK_SIZE) / BLOCK_SIZE, CHUNK_SIZE)
 	local chunk_z = floorDivide((coordinate.Z - BLOCK_SIZE) / BLOCK_SIZE, CHUNK_SIZE)
@@ -42,7 +42,7 @@ function ChunksUtil.worldToChunkPosition(coordinate : Vector3): ({string: {}})
 end
 
 
-function ChunksUtil.fractalNoise(x: number, y: number, octaves: number, lacunarity: number, persistence: number, scale: number, seed: number)
+function ChunksUtil.fractalNoise(x: number, y: number, octaves: number, lacunarity: number, persistence: number, scale: number, seed: number): (number)
 
 	-- The sum of our octaves
 	local value = 0 

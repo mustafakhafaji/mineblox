@@ -1,12 +1,6 @@
 return {
 	
-	--// Arm
-	['ARM'] = 
-		{
-			['TYPE'] = nil
-		},
-	
-	--// Plants
+	-- Plants
 	['Dandelion'] = 
 		{
 			['HARDNESS'] = 0,
@@ -33,7 +27,7 @@ return {
 			['TYPE'] = 'PLANT',
 		},
 	
-	--// Blocks
+	-- Blocks
 	['Clay'] = 
 		{
 			['HARDNESS'] = 0.6,
@@ -136,7 +130,7 @@ return {
 			['TYPE'] = 'BLOCK',
 		},
 	
-	--// Ores
+	-- Ores
 	['Raw Iron'] = 
 		{
 			['TYPE'] = 'ORE'
@@ -157,7 +151,7 @@ return {
 			['TYPE'] = 'ORE'
 		},
 	
-	--// Swords
+	-- Swords
 	['Wooden Sword'] = 
 		{
 			['TYPE'] = 'SWORD',
@@ -178,7 +172,7 @@ return {
 			['TYPE'] = 'SWORD',
 		},
 	
-	--// Pickaxes
+	-- Pickaxes
 	['Wooden Pickaxe'] = 
 		{
 			['TYPE'] = 'PICKAXE',
@@ -199,7 +193,7 @@ return {
 			['TYPE'] = 'PICKAXE',
 		},
 	
-	--// Axes
+	-- Axes
 	['Wooden Axe'] = 
 		{
 			['TYPE'] = 'AXE',
@@ -220,7 +214,7 @@ return {
 			['TYPE'] = 'AXE',
 		},
 	
-	--// Shovels
+	-- Shovels
 	['Wooden Shovel'] = 
 		{
 			['TYPE'] = 'SHOVEL',

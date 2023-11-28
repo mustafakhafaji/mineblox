@@ -4,7 +4,8 @@ local RunService = game:GetService('RunService')
 local Players = game:GetService('Players')
 local StarterPlayer = game:GetService('StarterPlayer')
 
-local Health = require(StarterPlayer.StarterPlayerScripts.MODULE_SCRIPTS.Health)
+local Modules = StarterPlayer.StarterPlayerScripts.Modules
+local Health = require(Modules.Health)
 
 local Camera = workspace.Camera
 local Player = Players.LocalPlayer
@@ -13,7 +14,7 @@ local lastY = nil
 
 -- PRIVATE
 
-function shakeCamera(damage: number)
+function shakeCamera(damage: number): ()
 	
 	RunService:UnbindFromRenderStep('CameraRotation')
 	
@@ -35,7 +36,7 @@ end
 
 
 -- Formula returning how many hearts a player should lose, by calculating fall distance
-function calculateFallDamage()
+function calculateFallDamage(): (number)
 	
 	local HumanoidRootPart = Player.Character:WaitForChild('HumanoidRootPart')
 	
@@ -50,7 +51,7 @@ function calculateFallDamage()
 end
 
 
-function registerPosition()
+function registerPosition(): ()
 	
 	local hrp = Player.Character:WaitForChild('HumanoidRootPart')
 	
@@ -58,7 +59,7 @@ function registerPosition()
 end
 
 
-function checkFallDamage()
+function checkFallDamage(): ()
 	
 	local damage = calculateFallDamage()
 	
@@ -69,7 +70,7 @@ function checkFallDamage()
 	-- raycast particle effect on ground 
 	
 	shakeCamera(damage)
-	Health.take_damage(damage)
+	Health.takeDamage(damage)
 end
 
 
@@ -81,15 +82,15 @@ function init(character: Model)
 	
 	task.wait(.5)
 	
-	humanoid.StateChanged:Connect(function(old_state, new_state)
+	humanoid.StateChanged:Connect(function(oldState, newState)
 
-		if new_state == Enum.HumanoidStateType.Freefall then
+		if newState == Enum.HumanoidStateType.Freefall then
 			registerPosition()
 
 		elseif 
 			lastY 
-			and old_state == Enum.HumanoidStateType.Freefall 
-			and new_state == Enum.HumanoidStateType.Landed 
+			and oldState == Enum.HumanoidStateType.Freefall 
+			and newState == Enum.HumanoidStateType.Landed 
 		then
 			checkFallDamage()
 		end
