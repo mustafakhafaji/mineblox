@@ -2,13 +2,18 @@ local SurfaceLayerGeneration = {}
 
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 
-local ChunkSettings = require(ReplicatedStorage.Modules.ChunkSettings)
+local ChunkSettings = require(ReplicatedStorage.Shared.ChunkSettings)
+local ItemsData = require(ReplicatedStorage.Shared.ItemsData)
 
 local CHUNK_SIZE = ChunkSettings['CHUNK_SIZE']
 local MAX_HEIGHT = ChunkSettings['MAX_HEIGHT']
 local MIN_HEIGHT = ChunkSettings['MIN_HEIGHT']
 
 local BASE_SURFACE_LEVEL = 3
+
+local AIR_ID = ItemsData['Air']['ID']
+local GRASS_BLOCK_ID = ItemsData['Grass Block']['ID']
+local DIRT_ID = ItemsData['Dirt']['ID']
 
 -- PRIVATE
 
@@ -50,8 +55,8 @@ function SurfaceLayerGeneration.generate(chunkBlocks: {}, chunkX: number, chunkZ
 			for y = MAX_HEIGHT, MIN_HEIGHT, -1 do
 				
 				if 
-					chunkBlocks[x][z][y] == 'Air' 
-					or chunkBlocks[x][z][y] == 'Oak Leaves' 
+					chunkBlocks[x][z][y] == AIR_ID
+					--or chunkBlocks[x][z][y] == 'Oak Leaves' 
 				then
 					dirts = 0
 					placedDirt = false
@@ -65,7 +70,7 @@ function SurfaceLayerGeneration.generate(chunkBlocks: {}, chunkX: number, chunkZ
 				dirts += 1
 				
 				if dirts == 1 then
-					chunkBlocks[x][z][y] = 'Grass Block'
+					chunkBlocks[x][z][y] = GRASS_BLOCK_ID
 					table.insert(chunkSurfaceY[x][z], y)
 					
 				elseif dirts > maxDirt then
@@ -73,7 +78,7 @@ function SurfaceLayerGeneration.generate(chunkBlocks: {}, chunkX: number, chunkZ
 					placedDirt = true
 					dirts = 0
 				else
-					chunkBlocks[x][z][y] = 'Dirt'
+					chunkBlocks[x][z][y] = DIRT_ID
 				end
 				
 			end

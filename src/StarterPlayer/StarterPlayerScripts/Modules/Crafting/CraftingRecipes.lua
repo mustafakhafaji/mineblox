@@ -1,4 +1,4 @@
-local CRAFTING_RECIPES = {
+local CraftingRecipes = {
 	
 	[1] =  -- # of rows
 		{
@@ -6,7 +6,7 @@ local CRAFTING_RECIPES = {
 			{
 				{
 					['Result'] = 'Oak Wood Planks',
-					['Quantity'] = 4, -- # of result
+					['Quantity'] = 4,
 					['Recipe'] =
 					{'Oak Log'}
 				},
@@ -66,9 +66,7 @@ local CRAFTING_RECIPES = {
 					{'Diamond', 'Diamond', 'Diamond',
 					'Diamond', 'X', 'Diamond'}
 				},
-				
 
-				-- Boots -- UPDATE RECIPE TO 2X2, ignore middle column/row?
 				{ 
 					['Result'] = 'Iron Boots',
 					['Recipe'] = 
@@ -266,4 +264,4 @@ local CRAFTING_RECIPES = {
 		}
 }
 
-return CRAFTING_RECIPES
+return CraftingRecipes

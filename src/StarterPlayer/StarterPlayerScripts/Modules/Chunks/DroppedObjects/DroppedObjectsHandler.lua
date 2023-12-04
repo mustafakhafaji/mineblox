@@ -1,6 +1,5 @@
 local DroppedObjects = {}
 
-local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local TweenService = game:GetService('TweenService')
 local RunService = game:GetService('RunService')
 local UserInputService = game:GetService('UserInputService')
@@ -9,8 +8,8 @@ local Players = game:GetService('Players')
 local StarterPlayer = game:GetService('StarterPlayer')
 
 local Modules = StarterPlayer.StarterPlayerScripts.Modules
-local ChunksUtil = require(ReplicatedStorage.Modules.ChunksUtil)
-local ChunkSettings = require(ReplicatedStorage.Modules.ChunkSettings)
+local ChunksUtil = require(ReplicatedStorage.Shared.ChunksUtil)
+local ChunkSettings = require(ReplicatedStorage.Shared.ChunkSettings)
 local Model = require(Modules.Model)
 local LoadedChunks = require(Modules.LoadedChunks)
 
@@ -89,7 +88,7 @@ end
 
 
 -- Handles up, down and rotational animations
-function handle_animations(): ()
+function handleAnimations(): ()
 
 end
 
@@ -108,38 +107,38 @@ function scaleObject(object: BasePart): ()
 end
 
 
-function generate_stack(objectName: string, chunkFolder: Folder, world_position: Vector3): (Model)
+function generateStack(objectName: string, chunkFolder: Folder, worldPosition: Vector3): (Model)
 
-	local object_1 = ReplicatedStorage.ITEMS:FindFirstChild(objectName):Clone()
-	local object_2 = object_1:Clone()
-	object_1.CanCollide = false
-	object_2.CanCollide = false
+	local object1 = ReplicatedStorage.Items:FindFirstChild(objectName):Clone()
+	local object2 = object1:Clone()
+	object1.CanCollide = false
+	object2.CanCollide = false
 
-	local grouped_dropped_objects = workspace.GROUPED_DROPPED_OBJECTS:Clone()
-	grouped_dropped_objects.Name = objectName
+	local groupedDroppedObjects = workspace.groupedDroppedObjects:Clone()
+	groupedDroppedObjects.Name = objectName
 
-	scaleObject(object_1)
-	scaleObject(object_2)
+	scaleObject(object1)
+	scaleObject(object2)
 
-	object_1.CFrame = grouped_dropped_objects.HITBOX.Point1.CFrame
-	object_2.CFrame = grouped_dropped_objects.HITBOX.Point2.CFrame
+	object1.CFrame = groupedDroppedObjects.HITBOX.Point1.CFrame
+	object2.CFrame = groupedDroppedObjects.HITBOX.Point2.CFrame
 
-	object_1.Parent = grouped_dropped_objects
-	object_2.Parent = grouped_dropped_objects
-	grouped_dropped_objects:PivotTo(CFrame.new(world_position + Vector3.new(math.random(-100, 100) / 100, 0, math.random(-100, 100) / 100)))
-	grouped_dropped_objects.Parent = chunkFolder
+	object1.Parent = groupedDroppedObjects
+	object2.Parent = groupedDroppedObjects
+	groupedDroppedObjects:PivotTo(CFrame.new(worldPosition + Vector3.new(math.random(-100, 100) / 100, 0, math.random(-100, 100) / 100)))
+	groupedDroppedObjects.Parent = chunkFolder
 
-	return grouped_dropped_objects
+	return groupedDroppedObjects
 end
 
 
 -- Generates a single object 
-function generate_object(objectName: string, chunkFolder: Folder, world_position: Vector3): (BasePart)
+function generateObject(objectName: string, chunkFolder: Folder, worldPosition: Vector3): (BasePart)
 
-	local object = ReplicatedStorage.ITEMS:FindFirstChild(objectName):Clone()
-	object.Position = world_position
+	local object = ReplicatedStorage.Items:FindFirstChild(objectName):Clone()
+	object.Position = worldPosition
 	object.CanCollide = false
-	object.Position = world_position + Vector3.new(math.random(-100, 100) / 100, 0, math.random(-100, 100) / 100)
+	object.Position = worldPosition + Vector3.new(math.random(-100, 100) / 100, 0, math.random(-100, 100) / 100)
 
 	scaleObject(object)
 
@@ -150,7 +149,7 @@ end
 
 
 -- Register server's chunk dropped objects
-function register_chunk_dropped_objects(chunkX: number, chunkZ: number, dropped_objects: {}): ()
+function registerChunkDroppedObjects(chunkX: number, chunkZ: number, dropped_objects: {}): ()
 
 	for x, objects_xs in dropped_objects do
 
@@ -184,7 +183,7 @@ function drop_equipped_object(): ()
 end
 
 
-function handle_input(input, typing): ()
+function handleInput(input, typing): ()
 
 	if not typing then 
 		return 
@@ -202,36 +201,36 @@ end
 end]]
 
 
-function update_stacks_at_position(chunkX: number, chunkZ: number, x: number, z: number, y: number): ()
+function updateStacksAtPosition(chunkX: number, chunkZ: number, x: number, z: number, y: number): ()
 
 	for objectName, objectAmount in loadedDroppedObjects[chunkX][chunkZ][x][z][y] do
 
 		if not renderedDroppedObjects[chunkX][chunkZ][x][z][y][objectName] then
 			renderedDroppedObjects[chunkX][chunkZ][x][z][y][objectName] = {}
 			renderedDroppedObjects[chunkX][chunkZ][x][z][y][objectName]['stacks'] = {}
-			renderedDroppedObjects[chunkX][chunkZ][x][z][y][objectName]['left_over'] = {}
+			renderedDroppedObjects[chunkX][chunkZ][x][z][y][objectName]['leftOver'] = {}
 		end
 		
 		local rendered_objects = renderedDroppedObjects[chunkX][chunkZ][x][z][y][objectName]
 
-		local needed_number_of_stacks = math.ceil((objectAmount - LEFT_OVER_SIZE) / OBJECT_STACK_SIZE)
-		local needed_left_over = if objectAmount % OBJECT_STACK_SIZE <= LEFT_OVER_SIZE then objectAmount % OBJECT_STACK_SIZE else 0
+		local neededNumberOfStacks = math.ceil((objectAmount - LEFT_OVER_SIZE) / OBJECT_STACK_SIZE)
+		local neededLeftOver = if objectAmount % OBJECT_STACK_SIZE <= LEFT_OVER_SIZE then objectAmount % OBJECT_STACK_SIZE else 0
 
-		local current_number_of_stacks = #rendered_objects['stacks']
-		local current_left_over = #rendered_objects['left_over']
+		local currentNumberOfStacks = #rendered_objects['stacks']
+		local currentLeftOver = #rendered_objects['leftOver']
 
 		local chunkFolder = workspace.DroppedObjects:FindFirstChild(`{chunkX}x{chunkZ}`)
 
 		-- Add stack to rendered objects
-		if needed_number_of_stacks > current_number_of_stacks then
+		if neededNumberOfStacks > currentNumberOfStacks then
 
-			local stack = generate_stack(objectName, chunkFolder, ChunksUtil.chunk_to_world_position(chunkX, chunkZ, x, z, y))
+			local stack = generateStack(objectName, chunkFolder, ChunksUtil.chunkToWorldPosition(chunkX, chunkZ, x, z, y))
 			table.insert(renderedDroppedObjects[chunkX][chunkZ][x][z][y][objectName]['stacks'], stack)
 
 			-- Remove stacks from rendered objects
-		elseif needed_number_of_stacks < current_number_of_stacks then
+		elseif neededNumberOfStacks < currentNumberOfStacks then
 
-			local stacks_to_remove = current_number_of_stacks - needed_number_of_stacks
+			local stacks_to_remove = currentNumberOfStacks - neededNumberOfStacks
 
 			for i = 1, stacks_to_remove do
 				rendered_objects['stacks'][i]:Destroy()
@@ -240,29 +239,29 @@ function update_stacks_at_position(chunkX: number, chunkZ: number, x: number, z:
 		end
 
 		-- Add left over to rendered object
-		if needed_left_over > current_left_over then
+		if neededLeftOver > currentLeftOver then
 
-			local left_over = generate_object(objectName, chunkFolder, ChunksUtil.chunk_to_world_position(chunkX, chunkZ, x, z, y))
-			table.insert(renderedDroppedObjects[chunkX][chunkZ][x][z][y][objectName]['left_over'], left_over)
+			local leftOver = generateObject(objectName, chunkFolder, ChunksUtil.chunkToWorldPosition(chunkX, chunkZ, x, z, y))
+			table.insert(renderedDroppedObjects[chunkX][chunkZ][x][z][y][objectName]['leftOver'], leftOver)
 
 			-- Remove left over from rendered object
-		elseif needed_left_over < current_left_over then
+		elseif neededLeftOver < currentLeftOver then
 
-			local left_over_to_remove = current_left_over - needed_left_over
+			local left_over_to_remove = currentLeftOver - neededLeftOver
 
 			for i = 1, left_over_to_remove do
 
-				rendered_objects['left_over'][i]:Destroy()
-				renderedDroppedObjects[chunkX][chunkZ][x][z][y][objectName]['left_over'][i] = nil
+				rendered_objects['leftOver'][i]:Destroy()
+				renderedDroppedObjects[chunkX][chunkZ][x][z][y][objectName]['leftOver'][i] = nil
 			end
 		end
 	end
 end
 
 
-function find_highest_air_y(start_y: number, blocks: {}): (number)
+function findHighestAirY(startY: number, blocks: {}): (number)
 
-	for y = start_y, MIN_HEIGHT, -1 do
+	for y = startY, MIN_HEIGHT, -1 do
 		if blocks[y] ~= 'Air' then
 			return y + 1
 		end
@@ -270,15 +269,15 @@ function find_highest_air_y(start_y: number, blocks: {}): (number)
 end
 
 
-function handle_update_dropped_objects(to_clear: {}, to_update: {}): ()
+function handleUpdateDroppedObjects(to_clear: {}, toUpdate: {}): ()
 	
-	for _, chunk_data in to_clear do
+	for _, chunkData in to_clear do
 		
-		local chunkX = chunk_data[1]
-		local chunkZ = chunk_data[2]
-		local x = chunk_data[3]
-		local z = chunk_data[4]
-		local y = chunk_data[5]
+		local chunkX = chunkData[1]
+		local chunkZ = chunkData[2]
+		local x = chunkData[3]
+		local z = chunkData[4]
+		local y = chunkData[5]
 		
 		if  
 			loadedDroppedObjects[chunkX][chunkZ][x]
@@ -288,25 +287,25 @@ function handle_update_dropped_objects(to_clear: {}, to_update: {}): ()
 			for objectName in loadedDroppedObjects[chunkX][chunkZ][x][z][y] do
 				
 				loadedDroppedObjects[chunkX][chunkZ][x][z][y][objectName] = 0
-				update_stacks_at_position(chunkX, chunkZ, x, z, y)
+				updateStacksAtPosition(chunkX, chunkZ, x, z, y)
 			end
 			
 		end
 	end
 	
-	local chunkX = to_update[1]
-	local chunkZ = to_update[2]
-	local x = to_update[3]
-	local z = to_update[4]
-	local y = to_update[5]
+	local chunkX = toUpdate[1]
+	local chunkZ = toUpdate[2]
+	local x = toUpdate[3]
+	local z = toUpdate[4]
+	local y = toUpdate[5]
 	
-	local objects_amount = to_update[6]
+	local objects_amount = toUpdate[6]
 	
 	createTblTables(loadedDroppedObjects, chunkX, chunkZ, x, z, y)
 	createTblTables(renderedDroppedObjects, chunkX, chunkZ, x, z, y)
 	loadedDroppedObjects[chunkX][chunkZ][x][z][y] = objects_amount
 	
-	update_stacks_at_position(chunkX, chunkZ, x, z, y)
+	updateStacksAtPosition(chunkX, chunkZ, x, z, y)
 end
 
 
@@ -331,11 +330,13 @@ end
 
 
 
---[[ PUBLIC ]]--
+-- PUBLIC 
 
-function DroppedObjects.render_chunk(chunkX: number, chunkZ: number): ()
+function DroppedObjects.renderChunk(chunkX: number, chunkZ: number): ()
 
-	if not (loadedDroppedObjects[chunkX] and loadedDroppedObjects[chunkX][chunkZ]) then return end
+	if not (loadedDroppedObjects[chunkX] and loadedDroppedObjects[chunkX][chunkZ]) then 
+		return 
+	end
 
 	local chunkFolder = Instance.new('Folder')
 	chunkFolder.Name = `{chunkX}x{chunkZ}`
@@ -355,17 +356,17 @@ function DroppedObjects.render_chunk(chunkX: number, chunkZ: number): ()
 				for objectName in objects_data do
 					renderedDroppedObjects[chunkX][chunkZ][x][z][y][objectName] = {}
 					renderedDroppedObjects[chunkX][chunkZ][x][z][y][objectName]['stacks'] = {}
-					renderedDroppedObjects[chunkX][chunkZ][x][z][y][objectName]['left_over'] = {}
+					renderedDroppedObjects[chunkX][chunkZ][x][z][y][objectName]['leftOver'] = {}
 				end
 				
-				update_stacks_at_position(chunkX, chunkZ, x, z, y)
+				updateStacksAtPosition(chunkX, chunkZ, x, z, y)
 			end
 		end
 	end
 end
 
 
-function DroppedObjects.unrender_chunk(chunkX: number, chunkZ: number): ()
+function DroppedObjects.unrenderChunk(chunkX: number, chunkZ: number): ()
 
 	local chunkFolder = workspace.DroppedObjects:FindFirstChild(`{chunkX}x{chunkZ}`)
 	chunkFolder:Destroy()
@@ -393,9 +394,9 @@ end
 
 
 -- Adds to already loaded object and renders if necessary (if block mined -> play anim in that script -> add to here)
-function DroppedObjects.add(object: BasePart, amount: number, world_position: Vector3): ()
+function DroppedObjects.add(object: BasePart, amount: number, worldPosition: Vector3): ()
 
-	local chunk_position = ChunksUtil.worldToChunkPosition(world_position)
+	local chunk_position = ChunksUtil.worldToChunkPosition(worldPosition)
 
 	local chunkX = chunk_position[1]
 	local chunkZ = chunk_position[2]
@@ -404,7 +405,12 @@ function DroppedObjects.add(object: BasePart, amount: number, world_position: Ve
 	local y = chunk_position[5]
 
 	-- Must be a loaded / rendered chunk
-	if not loadedDroppedObjects[chunkX] or not loadedDroppedObjects[chunkX][chunkZ] then return end
+	if 
+		not loadedDroppedObjects[chunkX] 
+		or not loadedDroppedObjects[chunkX][chunkZ] 
+	then 
+		return 
+	end
 
 	createTblTables(loadedDroppedObjects, chunkX, chunkZ, x, z, y)
 	createTblTables(renderedDroppedObjects, chunkX, chunkZ, x, z, y)
@@ -422,19 +428,19 @@ function DroppedObjects.add(object: BasePart, amount: number, world_position: Ve
 	if not renderedDroppedObjects[chunkX][chunkZ][x][z][y][object.Name]['stacks'] then
 		renderedDroppedObjects[chunkX][chunkZ][x][z][y][object.Name]['stacks'] = {}
 	end
-	if not renderedDroppedObjects[chunkX][chunkZ][x][z][y][object.Name]['left_over'] then
-		renderedDroppedObjects[chunkX][chunkZ][x][z][y][object.Name]['left_over'] = {}
+	if not renderedDroppedObjects[chunkX][chunkZ][x][z][y][object.Name]['leftOver'] then
+		renderedDroppedObjects[chunkX][chunkZ][x][z][y][object.Name]['leftOver'] = {}
 	end
-	table.insert(renderedDroppedObjects[chunkX][chunkZ][x][z][y][object.Name]['left_over'], object)
+	table.insert(renderedDroppedObjects[chunkX][chunkZ][x][z][y][object.Name]['leftOver'], object)
 
-	update_stacks_at_position(chunkX, chunkZ, x, z, y)
+	updateStacksAtPosition(chunkX, chunkZ, x, z, y)
 end
 
 
 -- Updates block positions to fall
-function DroppedObjects.block_mined(objectName: string, world_position: Vector3): ()
+function DroppedObjects.blockMined(objectName: string, worldPosition: Vector3): ()
 
-	local chunk_position = ChunksUtil.world_to_chunk_position(world_position)
+	local chunk_position = ChunksUtil.worldToChunkPosition(worldPosition)
 
 	local chunkX = chunk_position[1]
 	local chunkZ = chunk_position[2]
@@ -443,22 +449,22 @@ function DroppedObjects.block_mined(objectName: string, world_position: Vector3)
 	local y = chunk_position[5]
 
 	local blocksAtXZ = LoadedChunks[chunkX][chunkZ][x][z]
-	local new_y = find_highest_air_y(y, blocksAtXZ)
+	local newY = findHighestAirY(y, blocksAtXZ)
 	
-	createTblTables(loadedDroppedObjects, chunkX, chunkZ, x, z, new_y)
+	createTblTables(loadedDroppedObjects, chunkX, chunkZ, x, z, newY)
 
-	local to_move = {}
-	local destination = {chunkX, chunkZ, x, z, new_y}
+	local toMove = {}
+	local destination = {chunkX, chunkZ, x, z, newY}
 
 	-- If dropped block above mined -> move block down, TODO fire server, server doesnt know where air is, client must tell server
-	local loaded_dropped_objects_above = loadedDroppedObjects[chunkX][chunkZ][x][z][y + 1]
+	local loadedDroppedObjectsAbove = loadedDroppedObjects[chunkX][chunkZ][x][z][y + 1]
 	local loaded_dropped_objects_at = loadedDroppedObjects[chunkX][chunkZ][x][z][y]
-	local loaded_dropped_objects_new = loadedDroppedObjects[chunkX][chunkZ][x][z][new_y]
+	local loaded_dropped_objects_new = loadedDroppedObjects[chunkX][chunkZ][x][z][newY]
 	
 	-- Moves ABOVE to NEW
-	if loaded_dropped_objects_above then
+	if loadedDroppedObjectsAbove then
 		
-		for objectName, objectAmount in loaded_dropped_objects_above do
+		for objectName, objectAmount in loadedDroppedObjectsAbove do
 
 			if loaded_dropped_objects_new[objectName] then
 				loaded_dropped_objects_new[objectName] += objectAmount
@@ -467,11 +473,11 @@ function DroppedObjects.block_mined(objectName: string, world_position: Vector3)
 			end
 		end
 		loadedDroppedObjects[chunkX][chunkZ][x][z][y + 1] = nil
-		table.insert(to_move, {chunkX, chunkZ, x, z, y + 1})
+		table.insert(toMove, {chunkX, chunkZ, x, z, y + 1})
 	end
 
 	-- Moves AT to NEW
-	if y ~= new_y then
+	if y ~= newY then
 		
 		for objectName, objectAmount in loaded_dropped_objects_at do
 
@@ -482,96 +488,96 @@ function DroppedObjects.block_mined(objectName: string, world_position: Vector3)
 			end
 		end
 		loadedDroppedObjects[chunkX][chunkZ][x][z][y] = nil
-		table.insert(to_move, {chunkX, chunkZ, x, z, y})
+		table.insert(toMove, {chunkX, chunkZ, x, z, y})
 	end
 
 	-- If dropped block above mined block is rendered -> animate block down
-	local rendered_dropped_objects_above = renderedDroppedObjects[chunkX][chunkZ][x][z][y + 1]
-	local rendered_dropped_objects_at = renderedDroppedObjects[chunkX][chunkZ][x][z][y]
-	local rendered_dropped_objects_new = renderedDroppedObjects[chunkX][chunkZ][x][z][new_y]
+	local renderedDroppedObjectsAbove = renderedDroppedObjects[chunkX][chunkZ][x][z][y + 1]
+	local renderedDroppedObjectsAt = renderedDroppedObjects[chunkX][chunkZ][x][z][y]
+	local renderedDroppedObjectsNew = renderedDroppedObjects[chunkX][chunkZ][x][z][newY]
 
-	if not renderedDroppedObjects[chunkX][chunkZ][x][z][new_y] then
-		renderedDroppedObjects[chunkX][chunkZ][x][z][new_y] = {}
+	if not renderedDroppedObjects[chunkX][chunkZ][x][z][newY] then
+		renderedDroppedObjects[chunkX][chunkZ][x][z][newY] = {}
 	end
 
 	-- Move ABOVE to NEW
-	for objectName, object_data in rendered_dropped_objects_above or {} do
+	for objectName, object_data in renderedDroppedObjectsAbove or {} do
 
-		if not renderedDroppedObjects[chunkX][chunkZ][x][z][new_y][objectName] then
-			renderedDroppedObjects[chunkX][chunkZ][x][z][new_y][objectName] = {}
+		if not renderedDroppedObjects[chunkX][chunkZ][x][z][newY][objectName] then
+			renderedDroppedObjects[chunkX][chunkZ][x][z][newY][objectName] = {}
 		end
-		if not renderedDroppedObjects[chunkX][chunkZ][x][z][new_y][objectName]['stacks'] then
-			renderedDroppedObjects[chunkX][chunkZ][x][z][new_y][objectName]['stacks'] = {}
+		if not renderedDroppedObjects[chunkX][chunkZ][x][z][newY][objectName]['stacks'] then
+			renderedDroppedObjects[chunkX][chunkZ][x][z][newY][objectName]['stacks'] = {}
 		end
-		if not renderedDroppedObjects[chunkX][chunkZ][x][z][new_y][objectName]['left_over'] then
-			renderedDroppedObjects[chunkX][chunkZ][x][z][new_y][objectName]['left_over'] = {}
+		if not renderedDroppedObjects[chunkX][chunkZ][x][z][newY][objectName]['leftOver'] then
+			renderedDroppedObjects[chunkX][chunkZ][x][z][newY][objectName]['leftOver'] = {}
 		end
 
 		-- Stacks
 		for _, object in object_data['stacks'] do
 
-			object:PivotTo(CFrame.new(object.PrimaryPart.Position.X, new_y * 3, object.PrimaryPart.Position.Z))
-			table.insert(renderedDroppedObjects[chunkX][chunkZ][x][z][new_y][objectName]['stacks'], object)
+			object:PivotTo(CFrame.new(object.PrimaryPart.Position.X, newY * 3, object.PrimaryPart.Position.Z))
+			table.insert(renderedDroppedObjects[chunkX][chunkZ][x][z][newY][objectName]['stacks'], object)
 		end
 
 		-- Left over
-		if object_data['left_over'] then
+		if object_data['leftOver'] then
 
-			for _, object in object_data['left_over'] do
+			for _, object in object_data['leftOver'] do
 
-				object.Position = Vector3.new(object.Position.X, new_y * 3, object.Position.Z)
-				table.insert(renderedDroppedObjects[chunkX][chunkZ][x][z][new_y][object.Name]['left_over'], object)
+				object.Position = Vector3.new(object.Position.X, newY * 3, object.Position.Z)
+				table.insert(renderedDroppedObjects[chunkX][chunkZ][x][z][newY][object.Name]['leftOver'], object)
 			end
 		end
 	end
 	renderedDroppedObjects[chunkX][chunkZ][x][z][y + 1] = nil
 
 	-- Move AT to NEW
-	if y ~= new_y then
+	if y ~= newY then
 
-		for objectName, object_data in rendered_dropped_objects_at do
+		for objectName, object_data in renderedDroppedObjectsAt do
 
-			if not renderedDroppedObjects[chunkX][chunkZ][x][z][new_y][objectName] then
-				renderedDroppedObjects[chunkX][chunkZ][x][z][new_y][objectName] = {}
+			if not renderedDroppedObjects[chunkX][chunkZ][x][z][newY][objectName] then
+				renderedDroppedObjects[chunkX][chunkZ][x][z][newY][objectName] = {}
 			end
-			if not renderedDroppedObjects[chunkX][chunkZ][x][z][new_y][objectName]['stacks'] then
-				renderedDroppedObjects[chunkX][chunkZ][x][z][new_y][objectName]['stacks'] = {}
+			if not renderedDroppedObjects[chunkX][chunkZ][x][z][newY][objectName]['stacks'] then
+				renderedDroppedObjects[chunkX][chunkZ][x][z][newY][objectName]['stacks'] = {}
 			end
-			if not renderedDroppedObjects[chunkX][chunkZ][x][z][new_y][objectName]['left_over'] then
-				renderedDroppedObjects[chunkX][chunkZ][x][z][new_y][objectName]['left_over'] = {}
+			if not renderedDroppedObjects[chunkX][chunkZ][x][z][newY][objectName]['leftOver'] then
+				renderedDroppedObjects[chunkX][chunkZ][x][z][newY][objectName]['leftOver'] = {}
 			end
 
 			-- Stacks
 			for _, object in object_data['stacks'] do
 
-				object:PivotTo(CFrame.new(object.PrimaryPart.Position.X, new_y * 3, object.PrimaryPart.Position.Z))
-				table.insert(renderedDroppedObjects[chunkX][chunkZ][x][z][new_y][objectName]['stacks'], object)
+				object:PivotTo(CFrame.new(object.PrimaryPart.Position.X, newY * 3, object.PrimaryPart.Position.Z))
+				table.insert(renderedDroppedObjects[chunkX][chunkZ][x][z][newY][objectName]['stacks'], object)
 			end
 
 			-- Left over
-			if object_data['left_over'] then
+			if object_data['leftOver'] then
 
-				for _, object in object_data['left_over'] do
+				for _, object in object_data['leftOver'] do
 
-					object.Position = Vector3.new(object.Position.X, new_y * 3, object.Position.Z)
-					table.insert(renderedDroppedObjects[chunkX][chunkZ][x][z][new_y][object.Name]['left_over'], object)
+					object.Position = Vector3.new(object.Position.X, newY * 3, object.Position.Z)
+					table.insert(renderedDroppedObjects[chunkX][chunkZ][x][z][newY][object.Name]['leftOver'], object)
 				end
 			end
 		end
 		renderedDroppedObjects[chunkX][chunkZ][x][z][y] = nil
 	end
 
-	update_stacks_at_position(chunkX, chunkZ, x, z, new_y)
+	updateStacksAtPosition(chunkX, chunkZ, x, z, newY)
 	
-	ReplicatedStorage.REMOTES.BlockMined:FireServer(objectName, ChunksUtil.chunk_to_world_position(chunkX, chunkZ, x, z, new_y))
-	ReplicatedStorage.REMOTES.UpdateDroppedObjects:FireServer(to_move, destination)
+	ReplicatedStorage.REMOTES.BlockMined:FireServer(objectName, ChunksUtil.chunkToWorldPosition(chunkX, chunkZ, x, z, newY))
+	ReplicatedStorage.REMOTES.UpdateDroppedObjects:FireServer(toMove, destination)
 end
 
 
 -- Updates block positions to nearest air neighbour
-function DroppedObjects.block_placed(world_position: Vector3): ()
+function DroppedObjects.blockPlaced(worldPosition: Vector3): ()
 
-	local chunk_position = ChunksUtil.world_to_chunk_position(world_position)
+	local chunk_position = ChunksUtil.worldToChunkPosition(worldPosition)
 
 	local chunkX = chunk_position[1]
 	local chunkZ = chunk_position[2]
@@ -579,22 +585,22 @@ function DroppedObjects.block_placed(world_position: Vector3): ()
 	local z = chunk_position[4]
 	local y = chunk_position[5]
 
-	local to_move = {{chunkX, chunkZ, x, z, y}}
+	local toMove = {{chunkX, chunkZ, x, z, y}}
 	local destination = {}
 
 	if not (loadedDroppedObjects[chunkX] and loadedDroppedObjects[chunkX][chunkZ]) then 
 		return 
 	end
 	
-	for _, offset_position in NEIGHBOUR_ORDER do
+	for _, offsetPosition in NEIGHBOUR_ORDER do
 		
-		local neighbour_world_position = Vector3.new(
-			world_position.X + offset_position.X,
-			world_position.Y + offset_position.Y,
-			world_position.Z + offset_position.Z
+		local neighbour_worldPosition = Vector3.new(
+			worldPosition.X + offsetPosition.X,
+			worldPosition.Y + offsetPosition.Y,
+			worldPosition.Z + offsetPosition.Z
 		)
 		
-		local neighbour_chunk_position = ChunksUtil.world_to_chunk_position(neighbour_world_position)
+		local neighbour_chunk_position = ChunksUtil.worldToChunkPosition(neighbour_worldPosition)
 		
 		local neighbour_chunk_x = neighbour_chunk_position[1]
 		local neighbour_chunk_z = neighbour_chunk_position[2]
@@ -617,16 +623,16 @@ function DroppedObjects.block_placed(world_position: Vector3): ()
 		return 
 	end
 
-	ReplicatedStorage.Remotes.UpdateDroppedObjects:FireServer(to_move, destination)
+	ReplicatedStorage.Remotes.UpdateDroppedObjects:FireServer(toMove, destination)
 end
 
 
 -- EVENTS
 
-ReplicatedStorage.Remotes.GetDroppedObjects.OnClientEvent:Connect(register_chunk_dropped_objects)
-ReplicatedStorage.Remotes.UpdateDroppedObjects.OnClientEvent:Connect(handle_update_dropped_objects)
+ReplicatedStorage.Remotes.GetDroppedObjects.OnClientEvent:Connect(registerChunkDroppedObjects)
+ReplicatedStorage.Remotes.UpdateDroppedObjects.OnClientEvent:Connect(handleUpdateDroppedObjects)
 RunService.Heartbeat:Connect(checkForPickup)
-RunService.Heartbeat:Connect(handle_animations)
-UserInputService.InputBegan:Connect(handle_input)
+RunService.Heartbeat:Connect(handleAnimations)
+UserInputService.InputBegan:Connect(handleInput)
 
 return DroppedObjects

@@ -2,9 +2,11 @@ local BedrockGeneration = {}
 
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 
-local ChunkSettings = require(ReplicatedStorage.Modules.ChunkSettings)
+local ChunkSettings = require(ReplicatedStorage.Shared.ChunkSettings)
+local ItemsData = require(ReplicatedStorage.ItemsData)
 
 local CHUNK_SIZE = ChunkSettings['CHUNK_SIZE']
+local BEDROCK_ID = ItemsData['Bedrock']['ID']
 
 -- PUBLIC
 
@@ -15,9 +17,9 @@ function BedrockGeneration.generate(chunkBlocks: {}, BOTTOM_HEIGHT: number, RAND
 		for z = 1, CHUNK_SIZE, 1 do
 			
 			if RANDOM:NextInteger(1, 2) == 2 then
-				chunkBlocks[x][z][BOTTOM_HEIGHT + 1] = 'Bedrock'
+				chunkBlocks[x][z][BOTTOM_HEIGHT + 1] = BEDROCK_ID
 			else
-				chunkBlocks[x][z][BOTTOM_HEIGHT] = 'Bedrock'
+				chunkBlocks[x][z][BOTTOM_HEIGHT] = BEDROCK_ID
 			end
 		end
 	end

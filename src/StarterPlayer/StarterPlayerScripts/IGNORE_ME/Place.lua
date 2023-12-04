@@ -5,7 +5,7 @@ local StarterPlayer = game:GetService('StarterPlayer')
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 
 local Modules = StarterPlayer.StarterPlayerScripts.Modules
-local ChunkSettings = require(ReplicatedStorage.Modules.ChunkSettings)
+local ChunkSettings = require(ReplicatedStorage.Shared.ChunkSettings)
 local Selection = require(Modules.Selection)
 local InputTable = require(Modules.InputTable)
 local Equipped = require(Modules.Equipped)

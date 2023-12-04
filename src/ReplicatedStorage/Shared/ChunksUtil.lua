@@ -2,7 +2,7 @@ local ChunksUtil = {}
 
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 
-local ChunkSettings = require(ReplicatedStorage.Modules.ChunkSettings)
+local ChunkSettings = require(ReplicatedStorage.Shared.ChunkSettings)
 
 local CHUNK_SIZE = ChunkSettings['CHUNK_SIZE']
 local BLOCK_SIZE = ChunkSettings['BLOCK_SIZE']
@@ -69,6 +69,15 @@ function ChunksUtil.fractalNoise(x: number, y: number, octaves: number, lacunari
 	-- It is possible to have an output value outside of the range [-1,1]
 	-- For consistency let's clamp it to that range
 	return math.clamp(value, -1, 1)
+end
+
+
+-- Returns (-1, 1)
+function ChunksUtil.simpleNoise(x: number, y: number, seed: number): (number)
+
+	local noise = math.noise(x / 10, y / 10, seed)
+
+	return noise
 end
 
 

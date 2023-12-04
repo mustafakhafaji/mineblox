@@ -3,8 +3,7 @@ local DroppedObjects = {}
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local Players = game:GetService('Players')
 
-local Modules = ReplicatedStorage.Modules
-local ChunksUtil = require(Modules.ChunksUtil)
+local ChunksUtil = require(ReplicatedStorage.Shared.ChunksUtil)
 
 local droppedObjectsData = {}
 

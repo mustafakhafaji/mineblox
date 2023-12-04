@@ -7,13 +7,13 @@ local TweenService = game:GetService('TweenService')
 local StarterPlayer = game:GetService('StarterPlayer')
 
 local Modules = StarterPlayer.StarterPlayerScripts.Modules
-local ItemData = require(ReplicatedStorage.Modules.ItemData)
+local ItemsData = require(ReplicatedStorage.Shared.ItemsData)
 local Selection = require(Modules.Selection)
 local Equipped = require(Modules.Equipped)
 local ChunkLoading = require(Modules.ChunkLoading)
 local Model = require(Modules.Model)
 
-local FACES = {Enum.NormalId.Top, Enum.NormalId.Bottom, Enum.NormalId.Left, Enum.NormalId.Right, Enum.NormalId.Front, Enum.NormalId.Back}
+local Faces = {Enum.NormalId.Top, Enum.NormalId.Bottom, Enum.NormalId.Left, Enum.NormalId.Right, Enum.NormalId.Front, Enum.NormalId.Back}
 local NUMBER_OF_STAGES = 9
 
 local blockBeingMined = nil
@@ -32,7 +32,7 @@ end
 
 function destroyBlock()
 	
-	local dropItem = ItemData[block_being_mined.Name]['DROP']
+	local dropItem = ItemsData[block_being_mined.Name]['DROP']
 	
 	if dropItem then 
 		animateBlockJump(dropItem) 

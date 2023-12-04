@@ -104,7 +104,7 @@ function shake_hearts()
 			shake_times[i] = os.clock() + math.random(10, 30) / 100
 		end
 
-		heart_shake = S_RUN.Heartbeat:Connect(function()
+		heart_shake = RunService.Heartbeat:Connect(function()
 
 			for i, v in shake_times do
 				if os.clock() >= v then
@@ -185,7 +185,7 @@ function flashHeartsBorder(previousHearts: number): ()
 		end
 	end
 	
-	border_flash = S_RUN.RenderStepped:Connect(function()
+	border_flash = RunService.RenderStepped:Connect(function()
 		if os.clock() > next_flash then
 			
 			for _, heart_gui in HEALTH_BAR_GUI:GetChildren() do

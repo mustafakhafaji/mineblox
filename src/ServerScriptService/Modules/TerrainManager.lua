@@ -3,12 +3,11 @@ local Terrain = {}
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local Players = game:GetService('Players')
 
-local ChunksUtil = require(ReplicatedStorage.Modules.ChunksUtil)
+local ChunksUtil = require(ReplicatedStorage.Shared.ChunksUtil)
 
 local SEED = 500 -- CONTROLS THE SEED OF THE WORLD
 
 local chunkDifferences = {}
-
 
 -- PRIVATE 
 
@@ -107,9 +106,12 @@ end
 
 -- EVENTS
 
-ReplicatedStorage.Remotes.GetSeed.OnServerInvoke = getSeed()
-ReplicatedStorage.Remotes.GetChunkDifferences.OnServerEvent:Connect(getChunkDifferences)
-ReplicatedStorage.Remotes.UpdateChunk.OnServerEvent:Connect(updateChunk)
+ReplicatedStorage.Remotes.Chunks.GetSeed.OnServerInvoke = function()
+	return SEED
+end
+
+ReplicatedStorage.Remotes.Chunks.GetChunkDifferences.OnServerEvent:Connect(getChunkDifferences)
+ReplicatedStorage.Remotes.Chunks.UpdateChunk.OnServerEvent:Connect(updateChunk)
 
 
 return Terrain

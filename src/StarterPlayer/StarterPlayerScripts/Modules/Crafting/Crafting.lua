@@ -153,13 +153,14 @@ function Crafting.craft(items: {}): (string, number)
 		
 		local recipe = item['Recipe']
 		
-		if areTablesEqual(recipe, items) then
-			
-			local quantity = item['Quantity']
-			local result = item['Result']
-			
-			return result, quantity
+		if not areTablesEqual(recipe, items) then
+			continue
 		end
+
+		local quantity = item['Quantity']
+		local result = item['Result']
+		
+		return result, quantity
 	end
 end
 

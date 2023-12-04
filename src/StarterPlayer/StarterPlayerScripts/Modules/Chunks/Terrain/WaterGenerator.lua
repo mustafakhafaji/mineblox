@@ -1,35 +1,37 @@
-local WATER_GENERATION = {}
+local WaterGenerator = {}
 
---// Services
-local S_RS = game:GetService('ReplicatedStorage')
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
 
---// Modules
-local M_CHUNK_SETTINGS = require(S_RS.MODULE_SCRIPTS.CHUNK_SETTINGS)
+local ChunkSettings = require(ReplicatedStorage.Shared.ChunkSettings)
+local ItemsData = require(ReplicatedStorage.Shared.ItemsData)
 
---// Constants
-local CHUNK_SIZE = M_CHUNK_SETTINGS['CHUNK_SIZE']
-local SEA_LEVEL = M_CHUNK_SETTINGS['SEA_LEVEL']
-local MIN_HEIGHT = M_CHUNK_SETTINGS['MIN_HEIGHT']
---[[ PUBLIC ]]--
+local CHUNK_SIZE = ChunkSettings['CHUNK_SIZE']
+local SEA_LEVEL = ChunkSettings['SEA_LEVEL']
+local MIN_HEIGHT = ChunkSettings['MIN_HEIGHT']
 
---// Sets air blocks under sea level to water
-function WATER_GENERATION.generate(chunk_blocks: {}): ({})
+local AIR_ID = ItemsData['Air']['ID']
+local WATER_ID = ItemsData['Water']['ID']
+
+-- PUBLIC
+
+-- Sets air blocks under sea level to water
+function WaterGenerator.generate(chunkBlocks: {}): ({})
 	
 	for x = 1, CHUNK_SIZE do
 		for z = 1, CHUNK_SIZE do
 			
 			for y = SEA_LEVEL, MIN_HEIGHT, -1 do
 				
-				if chunk_blocks[x][z][y] ~= 'Air' then
+				if chunkBlocks[x][z][y] ~= AIR_ID then
 					break
 				end
 				
-				chunk_blocks[x][z][y] = 'Water'
+				chunkBlocks[x][z][y] = WATER_ID
 			end
 		end
 	end
 	
-	return chunk_blocks
+	return chunkBlocks
 end
 
-return WATER_GENERATION
+return WaterGenerator
