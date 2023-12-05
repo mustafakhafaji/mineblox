@@ -47,63 +47,64 @@ function TreeGeneration.generate(chunkBlocks: {}, preloadedBlocks: {}, surfaceY:
 				
 				local currentValue = random:NextInteger(0, 200)
 				
-				if currentValue < PERCENT_CHANCE_FOR_TREE then
+				if currentValue > PERCENT_CHANCE_FOR_TREE then
+					continue
+				end
 
-					--local surface_y_at_xz = surface_y[x][z]
-					--if chunk_blocks[x][z][surface_y_at_xz] ~= 'Grass Block' then continue end
+				--local surface_y_at_xz = surface_y[x][z]
+				--if chunk_blocks[x][z][surface_y_at_xz] ~= 'Grass Block' then continue end
 
-					local treeBlocks = Tree.getRandomTree(random)
+				local treeBlocks = Tree.getRandomTree(random)
 
-					for _, blockData in treeBlocks do
+				for _, blockData in treeBlocks do
 
-						local relativeTreeX = blockData[1]
-						local relativeTreeZ = blockData[2]
-						local relativeTreeY = blockData[3]
-						local blockID = blockData[4]
+					local relativeTreeX = blockData[1]
+					local relativeTreeZ = blockData[2]
+					local relativeTreeY = blockData[3]
+					local blockID = blockData[4]
 
-						local blockX = relativeTreeX + x
-						local blockZ = relativeTreeZ + z
-						local blockY = y + relativeTreeY
+					local blockX = relativeTreeX + x
+					local blockZ = relativeTreeZ + z
+					local blockY = y + relativeTreeY
 
-						local worldPosition = Vector3.new(
-							(chunkX * CHUNK_SIZE + blockX) * BLOCK_SIZE,
-							blockY * BLOCK_SIZE,
-							(chunkZ * CHUNK_SIZE + blockZ) * BLOCK_SIZE
-						) 
+					local worldPosition = Vector3.new(
+						(chunkX * CHUNK_SIZE + blockX) * BLOCK_SIZE,
+						blockY * BLOCK_SIZE,
+						(chunkZ * CHUNK_SIZE + blockZ) * BLOCK_SIZE
+					) 
 
-						local chunkPosition = ChunksUtil.worldToChunkPosition(worldPosition)
+					local chunkPosition = ChunksUtil.worldToChunkPosition(worldPosition)
 
-						local leavesChunkX = chunkPosition[1]
-						local leavesChunkZ = chunkPosition[2]
-						local leavesX = chunkPosition[3]
-						local leavesZ = chunkPosition[4]
-						local leavesY = chunkPosition[5]
+					local leavesChunkX = chunkPosition[1]
+					local leavesChunkZ = chunkPosition[2]
+					local leavesX = chunkPosition[3]
+					local leavesZ = chunkPosition[4]
+					local leavesY = chunkPosition[5]
 
-						if -- Block is NOT out of bounds
-							leavesChunkX == chunkX
-							and leavesChunkZ == chunkZ
-						then
-							chunkBlocks[blockX][blockZ][blockY] = blockID
+					if -- Block is NOT out of bounds
+						leavesChunkX == chunkX
+						and leavesChunkZ == chunkZ
+					then
+						chunkBlocks[blockX][blockZ][blockY] = blockID
 
-							--[[ To stop replacing terrain (dirt, stone, etc) with leaves or logs
-							if 
-								chunk_blocks[block_x][block_z][block_y] ~= 'Air' or plant
-							then continue end]]
-							continue
-						end
-
-						-- Block IS out of bounds
-						
-						-- If chunk not in preloaded -> add chunk to preloaded
+						--[[ To stop replacing terrain (dirt, stone, etc) with leaves or logs
 						if 
-							not preloadedBlocks[leavesChunkX] 
-							or not preloadedBlocks[leavesChunkX][leavesChunkZ]
-						then
-							preloadedBlocks = createEmptyPreloadedBlocks(preloadedBlocks, leavesChunkX, leavesChunkZ)
-						end
-
-						preloadedBlocks[leavesChunkX][leavesChunkZ][leavesX][leavesZ][leavesY] = blockID
+							chunk_blocks[block_x][block_z][block_y] ~= 'Air' or plant
+						then continue end]]
+						continue
 					end
+
+					-- Block IS out of bounds
+					
+					-- If chunk not in preloaded -> add chunk to preloaded
+					if 
+						not preloadedBlocks[leavesChunkX] 
+						or not preloadedBlocks[leavesChunkX][leavesChunkZ]
+					then
+						preloadedBlocks = createEmptyPreloadedBlocks(preloadedBlocks, leavesChunkX, leavesChunkZ)
+					end
+
+					preloadedBlocks[leavesChunkX][leavesChunkZ][leavesX][leavesZ][leavesY] = blockID
 				end
 			end
 		end

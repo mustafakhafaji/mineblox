@@ -217,7 +217,7 @@ function _init()
 	for itemID, itemName in ipairs(ItemsIDs) do
 
 		if not itemsData[itemName] then
-			continue
+			itemsData[itemName] = {}
 		end
 		
 		itemsData[itemName]['ID'] = itemID
