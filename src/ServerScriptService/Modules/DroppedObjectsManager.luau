@@ -9,31 +9,6 @@ local droppedObjectsData = {}
 
 -- PRIVATE
 
--- Fills in missing tables in droppedObjectsData
-function createDroppedObjectsTables(chunkX: number, chunkZ: number, x: number, z: number, y: number): ()
-
-	if not droppedObjectsData[chunkX] then
-		droppedObjectsData[chunkX] = {}
-	end
-
-	if not droppedObjectsData[chunkX][chunkZ] then
-		droppedObjectsData[chunkX][chunkZ] = {}
-	end
-
-	if not droppedObjectsData[chunkX][chunkZ][x] then
-		droppedObjectsData[chunkX][chunkZ][x] = {}
-	end
-
-	if not droppedObjectsData[chunkX][chunkZ][x][z] then
-		droppedObjectsData[chunkX][chunkZ][x][z] = {}
-	end
-	
-	if not droppedObjectsData[chunkX][chunkZ][x][z][y] then
-		droppedObjectsData[chunkX][chunkZ][x][z][y] = {}
-	end
-end
-
-
 function handleDroppedObjects(objectName: string, worldPosition: Vector3): ()
 	
 	local chunkPosition = ChunksUtil.worldToChunkPosition(worldPosition)
@@ -44,7 +19,8 @@ function handleDroppedObjects(objectName: string, worldPosition: Vector3): ()
 	local z = chunkPosition[4]
 	local y = chunkPosition[5]
 	
-	createDroppedObjectsTables(chunkX, chunkZ, x, z, y)
+	ChunksUtil.fillChunksTable(droppedObjectsData, chunkX, chunkZ, x, z, y)
+	--createDroppedObjectsTables(chunkX, chunkZ, x, z, y)
 	
 	-- check if block is there
 	-- if there is then += 1
@@ -76,7 +52,8 @@ function handleMinedBlock(Player: Player, objectName: string, worldPosition: Vec
 	local z = chunkPosition[4]
 	local y = chunkPosition[5]
 
-	createDroppedObjectsTables(chunkX, chunkZ, x, z, y)
+	ChunksUtil.fillChunksTable(droppedObjectsData, chunkX, chunkZ, x, z, y)
+	--createDroppedObjectsTables(chunkX, chunkZ, x, z, y)
 	
 	if droppedObjectsData[chunkX][chunkZ][x][z][y][objectName] then
 		
@@ -96,7 +73,8 @@ function handleUpdateDroppedObjects(player: Player, toMove: {}, destination: {})
 	local destinationZ = destination[4]
 	local destinationY = destination[5]
 	
-	createDroppedObjectsTables(destinationChunkX, destinationChunkZ, destinationX, destinationZ, destinationY)
+	ChunksUtil.fillChunksTable(droppedObjectsData, destinationChunkX, destinationChunkZ, destinationX, destinationZ, destinationY)
+	--createDroppedObjectsTables(destinationChunkX, destinationChunkZ, destinationX, destinationZ, destinationY)
 	
 	for _, chunkPosition in toMove do
 		

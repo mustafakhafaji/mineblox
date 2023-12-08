@@ -63,7 +63,7 @@ function SurfaceLayerGeneration.generate(chunkBlocks: {}, chunkX: number, chunkZ
 					continue
 				end
 				
-				if placedDirt == true then
+				if placedDirt then
 					continue 
 				end
 				

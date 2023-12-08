@@ -1,90 +1,92 @@
 local itemsData = {
 
-	Air = {},
+	Air = {
+		isSolid = false,
+	},
 
-	Water = {},
+	Water = {
+		isSolid = false,
+	},
 
 	Stone = {
-		Hardness = 2,
+		Hardness = 20,
 		PreferredTool = 'Pickaxe',
 		DropItem = 'Cobblestone',
 		Type = 'Block',
 	},
 
 	Cobblestone = {
-		Hardness = 2,
+		Hardness = 20,
 		PreferredTool = 'Pickaxe',
-		DropItem = 'Cobblestone',
 		Type = 'Block',
 	},
 
 	['Grass Block'] = {
-		Hardness = 0.6,
+		Hardness = 6,
 		PreferredTool = 'Shovel',
 		DropItem = 'Dirt',
 		Type = 'Block',
 	},
 
 	Dirt = {
-		Hardness = 0.5,
+		Hardness = 5,
 		PreferredTool = 'Shovel',
-		DropItem = 'Dirt',
 		Type = 'Block',
 	},
 
 	['Oak Wood Planks'] = {
-		Hardness = 2,
+		Hardness = 20,
 		PreferredTool = 'Axe',
-		DropItem = 'Oak Planks',
 		Type = 'Block',
 	},
 
 	Bedrock = {},
 
 	Sand = {
-		Hardness = 0.8,
+		Hardness = 8,
 		PreferredTool = 'Shovel',
-		DropItem = 'Sand',
 		Type = 'Block',
 	},
 
 	['Oak Log'] = {
-		Hardness = 2,
+		Hardness = 20,
 		PreferredTool = 'Axe',
-		DropItem = 'Oak Log',
 		Type = 'Block',
 	},
 
 	['Oak Leaves'] = {
-		Hardness = 0.2,
+		Hardness = 2,
 		Type = 'Block',
+		isSolid = false,
 	},
 
-	Glass = {},
+	Glass = {
+		isSolid = false,
+	},
 
 	['Coal Ore'] = {
-		Hardness = 3,
+		Hardness = 30,
 		PreferredTool = 'Pickaxe',
 		DropItem = 'Coal',
 		Type = 'Block',
 	},
 
 	['Gold Ore'] = {
-		Hardness = 3,
+		Hardness = 30,
 		PreferredTool = 'Pickaxe',
 		DropItem = 'Raw Gold',
 		Type = 'Block',
 	},
 
 	['Iron Ore'] = {
-		Hardness = 3,
+		Hardness = 30,
 		PreferredTool = 'Pickaxe',
 		DropItem = 'Raw Iron',
 		Type = 'Block',
 	},
 
 	['Diamond Ore'] = {
-		Hardness = 3,
+		Hardness = 30,
 		PreferredTool = 'Pickaxe',
 		DropItem = 'Diamond',
 		Type = 'Block',
@@ -96,7 +98,6 @@ local itemsData = {
 
 	Dandelion = {
 		Hardness = 0,
-		DropItem = 'Dandelion',
 		Type = 'Plant',
 	},
 	
@@ -107,27 +108,23 @@ local itemsData = {
 
 	['Oxeye Daisy'] = {
 		Hardness = 0,
-		DropItem = 'Oxeye Daisy',
 		Type = 'Plant',
 	},
 	
 	Poppy = {
 		Hardness = 0,
-		DropItem = 'Poppy',
 		Type = 'Plant',
 	},
 	
 	Clay = {
-		Hardness = 0.6,
+		Hardness = 6,
 		PreferredTool = 'Shovel',
-		DropItem = 'Clay',
 		Type = 'Block',
 	},
 	
 	Gravel = {
-		Hardness = 0.6,
+		Hardness = 6,
 		PreferredTool = 'Shovel',
-		DropItem = 'Gravel',
 		Type = 'Block',
 	},
 	

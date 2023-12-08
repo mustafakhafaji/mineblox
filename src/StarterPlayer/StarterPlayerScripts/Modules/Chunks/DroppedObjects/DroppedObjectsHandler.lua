@@ -69,9 +69,9 @@ handled differently
 ]]
 
 
--- PRIVATE
+-- PRIVATE--
 
-function createTblTables(tbl: {}, chunkX: number, chunkZ: number, x: number, z: number, y: number): ()
+--[[function createTblTables(tbl: {}, chunkX: number, chunkZ: number, x: number, z: number, y: number): ()
 
 	if not tbl[chunkX][chunkZ][x] then
 		tbl[chunkX][chunkZ][x] = {}
@@ -84,7 +84,7 @@ function createTblTables(tbl: {}, chunkX: number, chunkZ: number, x: number, z: 
 	if not tbl[chunkX][chunkZ][x][z][y] then
 		tbl[chunkX][chunkZ][x][z][y] = {}
 	end
-end
+end]]
 
 
 -- Handles up, down and rotational animations
@@ -300,9 +300,12 @@ function handleUpdateDroppedObjects(to_clear: {}, toUpdate: {}): ()
 	local y = toUpdate[5]
 	
 	local objects_amount = toUpdate[6]
-	
-	createTblTables(loadedDroppedObjects, chunkX, chunkZ, x, z, y)
-	createTblTables(renderedDroppedObjects, chunkX, chunkZ, x, z, y)
+
+	ChunksUtil.fillChunksTable(loadedDroppedObjects, chunkX, chunkZ, x, z, y)
+	ChunksUtil.fillChunksTable(renderedDroppedObjects, chunkX, chunkZ, x, z, y)
+
+	--createTblTables(loadedDroppedObjects, chunkX, chunkZ, x, z, y)
+	--createTblTables(renderedDroppedObjects, chunkX, chunkZ, x, z, y)
 	loadedDroppedObjects[chunkX][chunkZ][x][z][y] = objects_amount
 	
 	updateStacksAtPosition(chunkX, chunkZ, x, z, y)
@@ -351,7 +354,8 @@ function DroppedObjects.renderChunk(chunkX: number, chunkZ: number): ()
 		for z, object_zs in object_xs do
 			for y, objects_data in object_zs do
 				
-				createTblTables(renderedDroppedObjects, chunkX, chunkZ, x, z, y)
+				ChunksUtil.fillChunksTable(renderedDroppedObjects, chunkX, chunkZ, x, z, y)
+				--createTblTables(renderedDroppedObjects, chunkX, chunkZ, x, z, y)
 				
 				for objectName in objects_data do
 					renderedDroppedObjects[chunkX][chunkZ][x][z][y][objectName] = {}
@@ -412,8 +416,11 @@ function DroppedObjects.add(object: BasePart, amount: number, worldPosition: Vec
 		return 
 	end
 
-	createTblTables(loadedDroppedObjects, chunkX, chunkZ, x, z, y)
-	createTblTables(renderedDroppedObjects, chunkX, chunkZ, x, z, y)
+	ChunksUtil.fillChunksTable(loadedDroppedObjects, chunkX, chunkZ, x, z, y)
+	ChunksUtil.fillChunksTable(renderedDroppedObjects, chunkX, chunkZ, x, z, y)
+
+	--createTblTables(loadedDroppedObjects, chunkX, chunkZ, x, z, y)
+	--createTblTables(renderedDroppedObjects, chunkX, chunkZ, x, z, y)
 
 	if loadedDroppedObjects[chunkX][chunkZ][x][z][y][object.Name] then
 		loadedDroppedObjects[chunkX][chunkZ][x][z][y][object.Name] += amount
@@ -451,7 +458,8 @@ function DroppedObjects.blockMined(objectName: string, worldPosition: Vector3): 
 	local blocksAtXZ = LoadedChunks[chunkX][chunkZ][x][z]
 	local newY = findHighestAirY(y, blocksAtXZ)
 	
-	createTblTables(loadedDroppedObjects, chunkX, chunkZ, x, z, newY)
+	ChunksUtil.fillChunksTable(loadedDroppedObjects, chunkX, chunkZ, x, z, newY)
+	--createTblTables(loadedDroppedObjects, chunkX, chunkZ, x, z, newY)
 
 	local toMove = {}
 	local destination = {chunkX, chunkZ, x, z, newY}

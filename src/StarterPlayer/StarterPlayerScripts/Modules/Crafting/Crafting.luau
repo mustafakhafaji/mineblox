@@ -7,7 +7,7 @@ local CraftingRecipes = require(Modules.Crafting.CraftingRecipes)
 
 -- PRIVATE
 
--- Returns true if 2 tables are equal
+-- Returns true if given tables are equal
 function areTablesEqual(table1: {}, table2: {}): (boolean)
 
 	for i, v in next, table1 do
@@ -26,7 +26,31 @@ function areTablesEqual(table1: {}, table2: {}): (boolean)
 end
 
 
--- Removes empty rows
+-- Returns true if left and right columns are not empty, false if one in either, or empty
+function isLeftAndRightFilled(items: {}, rows: number, columns: number): (boolean)
+	
+	local leftEmpty = true
+	local rightEmpty = true
+	
+	-- Check left side
+	for row = 1, rows do
+		if items[row][1] ~= 'X' then
+			leftEmpty = false
+		end
+	end
+	
+	-- Check right side
+	for row = 1, rows do
+		if items[row][3] ~= 'X' then
+			rightEmpty = false
+		end
+	end
+	
+	return not (leftEmpty and rightEmpty)
+end
+
+
+-- Removes empty rows from table
 function shrinkRows(items: {}, rows: number, columns: number): ({}, number)
 	
 	local shrunkItems = {}
@@ -56,35 +80,7 @@ function shrinkRows(items: {}, rows: number, columns: number): ({}, number)
 end
 
 
--- True if left and right columns are not empty, false if one in either, or empty
-function isLeftAndRightFilled(items: {}, rows: number, columns: number): (boolean)
-	
-	local leftEmpty = true
-	local rightEmpty = true
-	
-	-- Check left side
-	for row = 1, rows do
-		if items[row][1] ~= 'X' then
-			leftEmpty = false
-		end
-	end
-	
-	-- Check right side
-	for row = 1, rows do
-		if items[row][3] ~= 'X' then
-			rightEmpty = false
-		end
-	end
-	
-	if not (leftEmpty and rightEmpty) then
-		return true
-	else
-		return false
-	end
-end
-
-
--- Removes empty columns from items list
+-- Removes empty columns from table
 function shrinkColumns(items: {}, rows: number, columns: number): ({}, number)
 	
 	-- If left and right columns arent empty then dont clear any columns

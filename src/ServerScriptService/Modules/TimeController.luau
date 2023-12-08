@@ -8,13 +8,12 @@ local startTime = os.time()
 
 -- PRIVATE
 
-function handleGetTime(): (number)
-	return startTime
+function handleRequestTime(player: Player): (number)
+	ReplicatedStorage.Remotes.RequestTime:FireClient(player, startTime)
 end
-
 
 -- EVENTS
 
-ReplicatedStorage.Remotes.GetTime.OnServerInvoke = handleGetTime()
+ReplicatedStorage.Remotes.RequestTime.OnServerEvent:Connect(handleRequestTime)
 
 return Time

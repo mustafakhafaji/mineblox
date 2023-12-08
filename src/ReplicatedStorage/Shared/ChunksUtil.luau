@@ -81,4 +81,20 @@ function ChunksUtil.simpleNoise(x: number, y: number, seed: number): (number)
 end
 
 
+-- Fills in table contents with chunkxz + xyz indices
+function ChunksUtil.fillChunksTable(tbl: {}, ...): ()
+	
+	local data = {...}
+
+	while #data > 0 do
+		
+		if not tbl[data[1]] then
+			tbl[data[1]] = {}
+		end
+
+		tbl = tbl[data[1]]
+		table.remove(data, 1)
+	end
+end
+
 return ChunksUtil
