@@ -87,7 +87,9 @@ end
 
 -- EVENTS
 
-ReplicatedStorage.Remotes.Chunks.GetSeed.OnServerInvoke = handleGetSeed()
+ReplicatedStorage.Remotes.Chunks.GetSeed.OnServerInvoke = function(player: Player)
+	return handleGetSeed(player)
+end
 ReplicatedStorage.Remotes.Chunks.GetChunkDifferences.OnServerEvent:Connect(getChunkDifferences)
 ReplicatedStorage.Remotes.Chunks.UpdateChunk.OnServerEvent:Connect(updateChunk)
 

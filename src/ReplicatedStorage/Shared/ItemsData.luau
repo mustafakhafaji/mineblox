@@ -1,11 +1,11 @@
 local itemsData = {
 
 	Air = {
-		isSolid = false,
+		isTransparent = true,
 	},
 
 	Water = {
-		isSolid = false,
+		isTransparent = true,
 	},
 
 	Stone = {
@@ -57,11 +57,11 @@ local itemsData = {
 	['Oak Leaves'] = {
 		Hardness = 2,
 		Type = 'Block',
-		isSolid = false,
+		isTransparent = true,
 	},
 
 	Glass = {
-		isSolid = false,
+		isTransparent = true,
 	},
 
 	['Coal Ore'] = {

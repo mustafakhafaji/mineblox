@@ -13,6 +13,7 @@ return {
 	'Sand',
 	'Oak Wood', 
 	'Oak Leaves',
+	'Oak Log',
 	'Glass',
 	
 	-- Ore blocks

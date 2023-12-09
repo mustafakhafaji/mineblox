@@ -60,6 +60,7 @@ local lastHumanoidRootPartCFrame = CFrame.new(0, MAX_HEIGHT * BLOCK_SIZE, 0)
 
 -- PRIVATE
 
+
 function isTblEmpty(tbl: {}): (boolean)
 	for _ in tbl do
 		return false
@@ -68,7 +69,7 @@ function isTblEmpty(tbl: {}): (boolean)
 end
 
 
-function generateBlock(blockID: number, worldPosition: Vector3, chunkFolder: Folder): (Part)
+function generateBlock(blockID: number, worldPosition: Vector3): (Part)
 
 	local referenceBlockName = ItemsIDs[blockID]
 	local referenceBlock = ReplicatedStorage.Items:FindFirstChild(referenceBlockName)
@@ -95,31 +96,31 @@ function getNeighbouringBlocks(centerBlockWorldPosition : Vector3): ({number: {n
 
 	for _, offsetVector in BLOCK_NEIGHBOUR_VECTORS do
 
-		local neighborBlockWorldPosition = Vector3.new(
+		local neighborWorldPosition = Vector3.new(
 			centerBlockWorldPosition.X + offsetVector.X,
 			centerBlockWorldPosition.Y + offsetVector.Y,
 			centerBlockWorldPosition.Z + offsetVector.Z
 		)
 
-		local neighborBlockChunkPosition = ChunksUtil.worldToChunkPosition(neighborBlockWorldPosition)
+		local neighborChunkPosition = ChunksUtil.worldToChunkPosition(neighborWorldPosition)
 
-		local neighborBlockChunkX = neighborBlockChunkPosition[1]
-		local neighborBlockChunkZ = neighborBlockChunkPosition[2]
-		local neighborBlockX = neighborBlockChunkPosition[3]
-		local neighborBlockZ = neighborBlockChunkPosition[4]
-		local neighborBlockY = neighborBlockChunkPosition[5]
+		local neighborChunkX = neighborChunkPosition[1]
+		local neighborChunkZ = neighborChunkPosition[2]
+		local neighborX = neighborChunkPosition[3]
+		local neighborZ = neighborChunkPosition[4]
+		local neighborY = neighborChunkPosition[5]
 
 		-- If neighbor block is loaded (exists) -> add to neighbouringBlocks table
 		if 
-			not loadedChunks[neighborBlockChunkX] 
-			or not loadedChunks[neighborBlockChunkX][neighborBlockChunkZ] 
+			not loadedChunks[neighborChunkX] 
+			or not loadedChunks[neighborChunkX][neighborChunkZ] 
 		then
 			return
 		end
 
-		local blockID = loadedChunks[neighborBlockChunkX][neighborBlockChunkZ][neighborBlockX][neighborBlockZ][neighborBlockY]
+		local blockID = loadedChunks[neighborChunkX][neighborChunkZ][neighborX][neighborZ][neighborY]
 
-		table.insert(neighbouringBlocks, {blockID, neighborBlockWorldPosition})
+		table.insert(neighbouringBlocks, {blockID, neighborWorldPosition})
 	end
 
 	return neighbouringBlocks
@@ -133,7 +134,7 @@ function renderPlant(blockID: number, chunkFolder: Folder, worldPosition: Vector
 
 	local plantSize = plant.PrimaryPart.Size
 
-	local widthDifference = (BLOCK_SIZE - plantSize.X) / 2 * 100 -- evaluate 2 * 100
+	local widthDifference = (BLOCK_SIZE - plantSize.X) / 200
 	local heightDifference = (BLOCK_SIZE - plantSize.Y)
 
 	local plantCFrame = CFrame.new(
@@ -155,45 +156,35 @@ function renderBlock(blockID: number, chunkFolder: Folder, worldPosition: Vector
 	local block = nil
 
 	-- Find what sides should be visible
-	local neighbouringBlocksData = getNeighbouringBlocks(worldPosition)
+	local neighborsData = getNeighbouringBlocks(worldPosition)
 
-	for _, neighbouringBlockData in neighbouringBlocksData do
+	for _, neighbouringBlockData in neighborsData do
 
-		local neighbouringBlockID = neighbouringBlockData[1]
-		local neighbouringBlockWorldPosition = neighbouringBlockData[2]
-		local neighbouringBlockName = ItemsIDs[neighbouringBlockID]
+		local neighborBlockID = neighbouringBlockData[1]
+		local neighborBlockWorldPosition = neighbouringBlockData[2]
+		local neighborBlockName = ItemsIDs[neighborBlockID]
 
-		if not neighbouringBlockID then 
+		local neighbourBlockChunkPosition = ChunksUtil.worldToChunkPosition(neighborBlockWorldPosition)
+
+		local neighborChunkX = neighbourBlockChunkPosition[1]
+		local neighborChunkZ = neighbourBlockChunkPosition[2]
+
+		if not loadedChunks[neighborChunkX] or not loadedChunks[neighborChunkX][neighborChunkZ] then 
 			continue 
 		end
-
-		local neighbouringBlockChunkPosition = ChunksUtil.worldToChunkPosition(neighbouringBlockWorldPosition)
-
-		local chunkX = neighbouringBlockChunkPosition[1]
-		local chunkZ = neighbouringBlockChunkPosition[2]
-		local x = neighbouringBlockChunkPosition[3]
-		local z = neighbouringBlockChunkPosition[4]
-		local y = neighbouringBlockChunkPosition[5]
-
-		if not loadedChunks[chunkX] or not loadedChunks[chunkX][chunkZ] then 
-			continue 
-		end
-
-		--local neighbouringBlock = loadedChunks[chunkX][chunkZ][x][z][y] -- Attempt to index nil with number
 
 		-- Determine whether side of block should be visible -> (generate block if haven't already), apply texture
-		
 		if 
-			neighbouringBlockID == AIR_ID
-			or ItemsData[neighbouringBlockName]['Type'] == 'Plant'
-			--or (blockName ~= 'Oak Leaves' and neighbouringBlockName == 'Oak Leaves')
+			neighborBlockID == AIR_ID
+			or ItemsData[neighborBlockName]['Type'] == 'Plant'
+			or ItemsData[neighborBlockName]['isTransparent']
 		then
 
 			if not block then
-				block = generateBlock(blockID, worldPosition, chunkFolder)
+				block = generateBlock(blockID, worldPosition)
 			end
 
-			local faceVector = (neighbouringBlockWorldPosition - worldPosition) / 3
+			local faceVector = (neighborBlockWorldPosition - worldPosition) / 3
 			local sideName = RELATIVE_POSITION_TO_FACE[faceVector]
 
 			local blockName = ItemsIDs[blockID]
@@ -202,6 +193,7 @@ function renderBlock(blockID: number, chunkFolder: Folder, worldPosition: Vector
 			sideDecal.Parent = block
 		end
 	end
+
 
 	if block then
 		block.Parent = chunkFolder
@@ -381,13 +373,13 @@ function registerDifferences(differences: {}): ()
 						continue 
 					end
 
-					local neighbouringBlockChunkPosition = ChunksUtil.worldToChunkPosition(neighbouringBlockWorldPosition)
+					local neighbourBlockChunkPosition = ChunksUtil.worldToChunkPosition(neighbouringBlockWorldPosition)
 
-					local chunkX = neighbouringBlockChunkPosition[1]
-					local chunkZ = neighbouringBlockChunkPosition[2]
-					local x = neighbouringBlockChunkPosition[3]
-					local z = neighbouringBlockChunkPosition[4]
-					local y = neighbouringBlockChunkPosition[5]
+					local chunkX = neighbourBlockChunkPosition[1]
+					local chunkZ = neighbourBlockChunkPosition[2]
+					local x = neighbourBlockChunkPosition[3]
+					local z = neighbourBlockChunkPosition[4]
+					local y = neighbourBlockChunkPosition[5]
 
 					local neighbouringBlock = renderedChunks[chunkX][chunkZ][x][z][y]
 
@@ -530,7 +522,7 @@ function GenerationManager.renderChunk(chunkX: number, chunkZ: number): ()
 		for z = 1, CHUNK_SIZE do
 			renderedChunkBlocks[x][z] = {}
 
-			for y = MAX_HEIGHT, MIN_HEIGHT, -1 do
+			for y = MAX_HEIGHT, MIN_HEIGHT + 1, -1 do
 
 				local blockID = loadedChunkBlocks[x][z][y]
 				local blockName = ItemsIDs[blockID]
