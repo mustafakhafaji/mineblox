@@ -7,14 +7,6 @@ local ChunkSettings = require(ReplicatedStorage.Shared.ChunkSettings)
 local CHUNK_SIZE = ChunkSettings['CHUNK_SIZE']
 local BLOCK_SIZE = ChunkSettings['BLOCK_SIZE']
 
-
--- PRIVATE
-
-function floorDivide(n, m): (number)
-	return math.floor(n / m)
-end
-
-
 -- PUBLIC
 
 -- Converts [chunk_x][chunk_z][x][z][y] position to a Vector3(x, y, z)
@@ -29,10 +21,10 @@ end
 
 
 -- Converts Vector3(x, y, z) position to a [chunk_x][chunk_z][x][z][y] 
-function ChunksUtil.worldToChunkPosition(coordinate : Vector3): ({number: number})
+function ChunksUtil.worldToChunkPosition(coordinate : Vector3): ({number})
 
-	local chunk_x =  floorDivide((coordinate.X - BLOCK_SIZE) / BLOCK_SIZE, CHUNK_SIZE)
-	local chunk_z = floorDivide((coordinate.Z - BLOCK_SIZE) / BLOCK_SIZE, CHUNK_SIZE)
+	local chunk_x =  ((coordinate.X - BLOCK_SIZE) / BLOCK_SIZE) // CHUNK_SIZE
+	local chunk_z = ((coordinate.Z - BLOCK_SIZE) / BLOCK_SIZE) // CHUNK_SIZE
 
 	local x = coordinate.X / BLOCK_SIZE - (chunk_x * CHUNK_SIZE)
 	local y = coordinate.Y / BLOCK_SIZE
@@ -96,5 +88,6 @@ function ChunksUtil.fillChunksTable(tbl: {}, ...): ()
 		table.remove(data, 1)
 	end
 end
+
 
 return ChunksUtil

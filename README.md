@@ -6,7 +6,7 @@ A reimplementation of Minecraft written in Lua for Roblox.
 ## Features
 
 * Rendering
-    * Render blocks as parts
+    * Render blocks as baseparts
     * Render plants as models
     * Cull textures & blocks based on neighbour
 * Generation
@@ -26,6 +26,8 @@ A reimplementation of Minecraft written in Lua for Roblox.
 ## Planned Features
 
 * Render blocks using editable meshes
+* LOD (level of detail) based on distance
+* Multithreading
 * Biomes
     * Desert
     * Tundra

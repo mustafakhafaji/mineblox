@@ -3,7 +3,7 @@ local BedrockGeneration = {}
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 
 local ChunkSettings = require(ReplicatedStorage.Shared.ChunkSettings)
-local ItemsData = require(ReplicatedStorage.ItemsData)
+local ItemsData = require(ReplicatedStorage.Shared.ItemsData)
 
 local CHUNK_SIZE = ChunkSettings['CHUNK_SIZE']
 local BEDROCK_ID = ItemsData['Bedrock']['ID']
