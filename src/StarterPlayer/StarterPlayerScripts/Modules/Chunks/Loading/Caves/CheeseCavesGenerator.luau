@@ -1,0 +1,3 @@
+local CheeseCavesGenerator = {}
+
+return CheeseCavesGenerator

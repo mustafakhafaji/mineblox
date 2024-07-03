@@ -4,16 +4,15 @@ return {
 	'Water',
 	
 	-- Everyday blocks
+	'Dirt', 
+	'Grass Block',
 	'Stone',
 	'Cobblestone',
-	'Grass Block',
-	'Dirt', 
 	'Oak Wood Planks',
-	'Bedrock',
-	'Sand',
-	'Oak Wood', 
 	'Oak Leaves',
 	'Oak Log',
+	'Bedrock',
+	'Sand',
 	'Glass',
 	
 	-- Ore blocks

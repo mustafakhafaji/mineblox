@@ -1,22 +1,17 @@
-# Mineblox
-A reimplementation of Minecraft written in Lua for Roblox.
+# Voxels Engine
+A highly extensible voxel engine written in Luau for Roblox.
 
-[Not affiliated with Mojang AB]
+[Inspired by Minecraft and Terraria]
 
 ## Features
 
 * Rendering
-    * Render blocks as baseparts
-    * Render plants as models
-    * Cull textures & blocks based on neighbour
+    * Render a chunk of terrain procedurally using EditableMeshes and EditableImages
+    * Cull hidden faces
 * Generation
-    * Terrain Shape
-    * Surface Layer
-    * Plants + trees
-* Dropped objects
-    * Movement
-    * Stacking
-* Health & fall damage
+    * Terrain shape using fractal noise and spline maps
+    * Multithreading by giving chunks generation stages
+    * Storing data into u8 buffers
 
 ## Getting Started
 
@@ -25,20 +20,15 @@ A reimplementation of Minecraft written in Lua for Roblox.
 
 ## Planned Features
 
-* Render blocks using editable meshes
-* LOD (level of detail) based on distance
-* Multithreading
 * Biomes
     * Desert
+    * Forest
+    * Jungle
     * Tundra
 * Caves
-* Particle physics system
-* Mobs
-    * Pathfinding
-    * State machine
+    * Spaghetti caves
+    * Cheese caves
 
 ## Contributing
 
 Check out the [contribution guide](CONTRIBUTING.md) for instructions.
-
-[This document is a work in progress]

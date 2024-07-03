@@ -1,5 +1,4 @@
 local itemsData = {
-
 	Air = {
 		isTransparent = true,
 	},

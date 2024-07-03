@@ -4,86 +4,117 @@ local ReplicatedStorage = game:GetService('ReplicatedStorage')
 
 local ChunkSettings = require(ReplicatedStorage.Shared.ChunkSettings)
 
-local CHUNK_SIZE = ChunkSettings['CHUNK_SIZE']
-local BLOCK_SIZE = ChunkSettings['BLOCK_SIZE']
+local CHUNK_SIZE: number = ChunkSettings['CHUNK_SIZE']
+local BLOCK_SIZE: number = ChunkSettings['BLOCK_SIZE']
 
 -- PUBLIC
 
 -- Converts [chunk_x][chunk_z][x][z][y] position to a Vector3(x, y, z)
-function ChunksUtil.chunkToWorldPosition(chunkX: number, chunkZ: number, xPos: number, zPos: number, yPos: number): (Vector3)
+function ChunksUtil.chunkToWorldPosition(chunkX: number, chunkZ: number, chunkY: number, x: number, z: number, y: number): Vector3
+	local worldX = (chunkX * CHUNK_SIZE + x) * BLOCK_SIZE
+	local worldZ = (chunkZ * CHUNK_SIZE + z) * BLOCK_SIZE
+	local worldY = (chunkY * CHUNK_SIZE + y) * BLOCK_SIZE
+	return Vector3.new(worldX, worldY, worldZ)
+end
 
-	local x = (chunkX * CHUNK_SIZE + xPos) * BLOCK_SIZE
-	local z = (chunkZ * CHUNK_SIZE + zPos) * BLOCK_SIZE
-	local y = yPos * BLOCK_SIZE
 
-	return Vector3.new(x, y, z)
+-- Returns the buffer position of blockId from relative chunk position
+function ChunksUtil.chunkToBufferPosition(x: number, z: number, y: number): number
+	return (x - 1) * CHUNK_SIZE + (z - 1) * CHUNK_SIZE * CHUNK_SIZE + (y - 1) 
 end
 
 
 -- Converts Vector3(x, y, z) position to a [chunk_x][chunk_z][x][z][y] 
-function ChunksUtil.worldToChunkPosition(coordinate : Vector3): ({number})
-
-	local chunk_x =  ((coordinate.X - BLOCK_SIZE) / BLOCK_SIZE) // CHUNK_SIZE
-	local chunk_z = ((coordinate.Z - BLOCK_SIZE) / BLOCK_SIZE) // CHUNK_SIZE
-
-	local x = coordinate.X / BLOCK_SIZE - (chunk_x * CHUNK_SIZE)
-	local y = coordinate.Y / BLOCK_SIZE
-	local z = coordinate.Z / BLOCK_SIZE - (chunk_z * CHUNK_SIZE)
-
-	return {chunk_x, chunk_z, x, z, y}
-end
-
-
-function ChunksUtil.fractalNoise(x: number, y: number, octaves: number, lacunarity: number, persistence: number, scale: number, seed: number): (number)
-
-	-- The sum of our octaves
-	local value = 0 
-
-	-- These coordinates will be scaled the lacunarity
-	local x1 = x 
-	local y1 = y
-
-	-- Determines the effect of each octave on the previous sum
-	local amplitude = 1
-
-	for i = 1, octaves, 1 do
-		-- Multiply the noise output by the amplitude and add it to our sum
-		value += math.noise(x1 / scale, y1 / scale, seed) * amplitude
-
-		-- Scale up our perlin noise by multiplying the coordinates by lacunarity
-		y1 *= lacunarity
-		x1 *= lacunarity
-
-		-- Reduce our amplitude by multiplying it by persistence
-		amplitude *= persistence
-	end
-
-	-- It is possible to have an output value outside of the range [-1,1]
-	-- For consistency let's clamp it to that range
-	return math.clamp(value, -1, 1)
+function ChunksUtil.worldToChunkPosition(coordinate : Vector3): {number}
+	local chunkX =  ((coordinate.X - BLOCK_SIZE) / BLOCK_SIZE) // CHUNK_SIZE
+	local chunkZ = ((coordinate.Z - BLOCK_SIZE) / BLOCK_SIZE) // CHUNK_SIZE
+	local chunkY = ((coordinate.Y - BLOCK_SIZE) / BLOCK_SIZE) // CHUNK_SIZE
+	local x = coordinate.X / BLOCK_SIZE - (chunkX * CHUNK_SIZE)
+	local z = coordinate.Z / BLOCK_SIZE - (chunkZ * CHUNK_SIZE)
+	local y = coordinate.Y / BLOCK_SIZE - (chunkY * CHUNK_SIZE)
+	return {chunkX, chunkZ, chunkY, x, z, y}
 end
 
 
 -- Returns (-1, 1)
-function ChunksUtil.simpleNoise(x: number, y: number, seed: number): (number)
+function ChunksUtil.simpleNoise(x: number, y: number, seed: number): number
+	return math.noise(x / 20, y / 20, seed)
+end
 
-	local noise = math.noise(x / 10, y / 10, seed)
+--[[
+	Octaves = 2,
+	Lacunarity = 5, -- > 1
+	Persistence = .2, -- > 0, < 1
+	Scale = 40,
+]]
+function ChunksUtil.continentalnessNoise(x: number, y: number, seed: number): number
+	local value = 0 
+	local amplitude = 1
+	local x1 = x 
+	local y1 = y
 
-	return noise
+	for i = 1, 2, 1 do
+		value += math.noise(x1 / 160, y1 / 160, seed) * amplitude
+
+		y1 *= 5
+		x1 *= 5
+
+		amplitude *= .2
+	end
+	return value
+end
+
+
+--[[
+	Octaves = 2,
+	Lacunarity = 4, -- > 1
+	Persistence = .2, -- > 0, < 1
+	Scale = 50,
+]]
+function ChunksUtil.erosionNoise(x: number, y: number, seed: number): number
+	local value = 0 
+	local amplitude = 1
+	local x1 = x 
+	local y1 = y
+
+	for i = 1, 2, 1 do
+		value += math.noise(x1 / 200, y1 / 200, seed) * amplitude
+
+		y1 *= 4
+		x1 *= 4
+
+		amplitude *= .2
+	end
+	return value
+end
+
+
+function ChunksUtil.peaksAndValleysNoise(x: number, y: number, seed: number): number
+	local value = 0 
+	local amplitude = 1
+	local x1 = x 
+	local y1 = y
+
+	for i = 1, 2, 1 do
+		value += math.noise(x1 / 100, y1 / 100, seed) * amplitude
+
+		y1 *= 4
+		x1 *= 4
+
+		amplitude *= .2
+	end
+	return value
 end
 
 
 -- Fills in table contents with chunkxz + xyz indices
 function ChunksUtil.fillChunksTable(tbl: {}, ...): ()
-	
 	local data = {...}
 
 	while #data > 0 do
-		
 		if not tbl[data[1]] then
 			tbl[data[1]] = {}
 		end
-
 		tbl = tbl[data[1]]
 		table.remove(data, 1)
 	end
