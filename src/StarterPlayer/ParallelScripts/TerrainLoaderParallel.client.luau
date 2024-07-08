@@ -30,9 +30,6 @@ function loadChunk(chunkX: number, chunkZ: number, chunkY: number, SEED: number)
 	TerrainShapeGenerator.generate(chunkX, chunkZ, chunkY, chunkBlocks, SEED)
 	
 	ChunkLoadedTerrain:Fire(chunkX, chunkZ, chunkY, chunkBlocks)
-	task.synchronize()
-	actor:Destroy()
-	script:Destroy()
 end
 
 
