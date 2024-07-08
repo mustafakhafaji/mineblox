@@ -19,9 +19,6 @@ function loadChunk(chunkX: number, chunkZ: number, chunkY: number, chunkBlocks: 
 	local neighbouringChunksModifications = BiomeSelector.generateBiome(chunkX, chunkZ, chunkY, chunkBlocks, neighbouringChunks, SEED)
 	
 	ChunkLoadedBiome:Fire(chunkX, chunkZ, chunkY, chunkBlocks, neighbouringChunks)
-	task.synchronize()
-	actor:Destroy()
-	script:Destroy()
 end
 
 
