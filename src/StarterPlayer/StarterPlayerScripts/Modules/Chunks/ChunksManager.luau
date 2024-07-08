@@ -22,6 +22,8 @@ local BLOCK_SIZE: number = ChunkSettings['BLOCK_SIZE']
 local CHUNK_SIZE: number = ChunkSettings['CHUNK_SIZE']
 local CHUNK_DISTANCE: number = ChunkSettings['CHUNK_DISTANCE']
 local MAX_CHUNK_DISTANCE: number = ChunkSettings['MAX_CHUNK_DISTANCE']
+local CHUNK_LOADING_ACTORS: number = ChunkSettings['CHUNK_LOADING_ACTORS']
+local MAX_CHUNK_LOADING_ACTORS: number = ChunkSettings['MAX_CHUNK_LOADING_ACTORS']
 
 local LOAD_OFFSET: number = 2
 
@@ -36,6 +38,9 @@ local SEED: number = 500
 
 local framesSinceLastRender: number = 0
 local framesSinceLastLoad: number = 0
+
+local terrainActors = table.create(CHUNK_LOADING_ACTORS // 2) -- Preallocate tables for chunk loading actors
+local biomeActors = table.create(CHUNK_LOADING_ACTORS // 2)
 
 -- PRIVATE
 
@@ -75,12 +80,26 @@ function unrenderChunks(toUnrender: {}): ()
 	end
 end
 
+-- Create actors for loadChunk()
+do
+	for _ = 1, MAX_CHUNK_LOADING_ACTORS // 2 do
+		local terrainActor = Instance.new('Actor')
+		local terrainScript = TerrainLoaderParallel:Clone()
+		terrainScript.Parent = terrainActor
+		terrainActor.Parent = Player.PlayerScripts
+		table.insert(terrainActors, terrainActor)
+
+		local biomeActor = Instance.new('Actor')
+		local biomeScript = BiomeLoaderParallel:Clone()
+		biomeScript.Parent = biomeActor
+		biomeActor.Parent = Player.PlayerScripts
+		table.insert(biomeActors, biomeActor)
+	end
+end
 
 -- Calls loadChunk() on every chunk to load
 function loadChunks(toLoad: {}): ()
 	local chunksTerrainLoaded: number = 0
-	local terrainActors = {}
-	local biomeActors = {}
 	
 	local chunksToLoadTerrain = {}
 	local chunksToLoadBiome = {}
@@ -96,11 +115,6 @@ function loadChunks(toLoad: {}): ()
 			end
 			ChunksData[chunkX][chunkZ][chunkY]['isLoading'] = true
 			
-			local actor = Instance.new('Actor')
-			local childScript = TerrainLoaderParallel:Clone()
-			childScript.Parent = actor
-			actor.Parent = Player.PlayerScripts
-			table.insert(terrainActors, actor)
 			table.insert(chunksToLoadTerrain, chunk)
 			
 			chunksTerrainLoaded += 1
@@ -114,11 +128,6 @@ function loadChunks(toLoad: {}): ()
 			end
 			ChunksData[chunkX][chunkZ][chunkY]['isLoading'] = true
 			
-			local actor = Instance.new('Actor')
-			local childScript = BiomeLoaderParallel:Clone()
-			childScript.Parent = actor
-			actor.Parent = Player.PlayerScripts
-			table.insert(biomeActors, actor)
 			table.insert(chunksToLoadBiome, chunk)
 		end
 	end
@@ -129,8 +138,7 @@ function loadChunks(toLoad: {}): ()
 			local chunkZ: number = chunk[2]
 			local chunkY: number = chunk[3]
 			
-			terrainActors[#terrainActors]:SendMessage('beginLoading', chunkX, chunkZ, chunkY, SEED)
-			table.remove(terrainActors, #terrainActors)
+			terrainActors[math.random(1, CHUNK_LOADING_ACTORS // 2)]:SendMessage('beginLoading', chunkX, chunkZ, chunkY, SEED)
 		end
 		
 		for _, chunk in chunksToLoadBiome do
@@ -143,8 +151,7 @@ function loadChunks(toLoad: {}): ()
 				[chunkX .. 'x' .. chunkZ .. 'x' .. chunkY - 1] = ChunksData[chunkX][chunkZ][chunkY - 1]['buffer']
 			}
 			
-			biomeActors[#biomeActors]:SendMessage('beginLoading', chunkX, chunkZ, chunkY, chunkBlocks, neighbouringChunks, SEED)
-			table.remove(biomeActors, #biomeActors)
+			biomeActors[math.random(1, CHUNK_LOADING_ACTORS // 2)]:SendMessage('beginLoading', chunkX, chunkZ, chunkY, chunkBlocks, neighbouringChunks, SEED)
 		end
 	end)
 end
