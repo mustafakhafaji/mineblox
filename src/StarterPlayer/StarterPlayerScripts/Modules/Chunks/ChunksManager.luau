@@ -22,8 +22,8 @@ local BLOCK_SIZE: number = ChunkSettings['BLOCK_SIZE']
 local CHUNK_SIZE: number = ChunkSettings['CHUNK_SIZE']
 local CHUNK_DISTANCE: number = ChunkSettings['CHUNK_DISTANCE']
 local MAX_CHUNK_DISTANCE: number = ChunkSettings['MAX_CHUNK_DISTANCE']
-local CHUNK_LOADING_ACTORS = ChunkSettings['CHUNK_LOADING_ACTORS']
-local MAX_CHUNK_LOADING_ACTORS = ChunkSettings['MAX_CHUNK_LOADING_ACTORS']
+local CHUNK_LOADING_ACTORS: number = ChunkSettings['CHUNK_LOADING_ACTORS']
+local MAX_CHUNK_LOADING_ACTORS: number = ChunkSettings['MAX_CHUNK_LOADING_ACTORS']
 
 local LOAD_OFFSET: number = 2
 
