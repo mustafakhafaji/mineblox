@@ -3,9 +3,15 @@ local CollisionsManager = {}
 local Players = game:GetService('Players')
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local RunService = game:GetService('RunService')
-local StarterPlayer = game:GetService('StarterPlayer')
 
-local ChunksData = require(StarterPlayer.StarterPlayerScripts.Modules.Chunks.Data.ChunksData)
+local Player: Player = Players.LocalPlayer
+local Character: Model = Player.Character or Player.CharacterAdded:Wait()
+local HumanoidRootPart: Part = Character:WaitForChild('HumanoidRootPart') :: Part
+local PlayerScripts = Player.PlayerScripts
+
+local Modules = PlayerScripts:WaitForChild('Modules')
+
+local ChunksData = require(Modules.Chunks.Data.ChunksData)
 local ChunkSettings = require(ReplicatedStorage.Shared.ChunkSettings)
 local ChunksUtil = require(ReplicatedStorage.Shared.ChunksUtil)
 local ItemsData = require(ReplicatedStorage.Shared.ItemsData)
@@ -14,8 +20,6 @@ local CHUNK_SIZE: number = ChunkSettings['CHUNK_SIZE']
 local BLOCK_SIZE: number = ChunkSettings['BLOCK_SIZE']
 
 local AIR_ID: number = ItemsData['Air']['ID']
-
-local Player: Player = Players.LocalPlayer
 
 local CollisionParts: Folder = workspace.CollisionParts
 local collisionParts = {}
@@ -39,18 +43,17 @@ for i = 1, 10 do
 end
 
 
-function roundToNearest(value: number, snap: number): number
+local function roundToNearest(value: number, snap: number): number
 	return math.round(value / snap) * snap
 end
 
 
-function updateCollisionParts()
-	local Character: Model? = Player.Character
-	if not Character or not Character:FindFirstChild('HumanoidRootPart') then
+local function updateCollisionParts(): ()
+	if not HumanoidRootPart then
 		return
 	end
 	
-	local characterPosition: Vector3 = Character.HumanoidRootPart.Position
+	local characterPosition: Vector3 = HumanoidRootPart.Position
 	local roundedPosition: Vector3 = Vector3.new(
 		roundToNearest(characterPosition.X, BLOCK_SIZE),
 		roundToNearest(characterPosition.Y - 1, BLOCK_SIZE),

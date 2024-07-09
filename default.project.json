@@ -3,6 +3,29 @@
   "tree": {
     "$className": "DataModel",
 
+    "Lighting": {
+      "$className": "Lighting",
+
+      "$properties": {
+        "Ambient": {"Color3": [0.2745098039, 0.2745098039, 0.2745098039]},
+        "OutdoorAmbient": {"Color3": [0.2745098039, 0.2745098039, 0.2745098039]},
+        "Brightness": {"Float32": 3},
+        "EnvironmentDiffuseScale": {"Float32": 1},
+        "EnvironmentSpecularScale": {"Float32": 1},
+        "GlobalShadows": {"Bool": true},
+        "Technology": {"Enum": 3},
+        "ShadowSoftness": {"Float32": 0.2}
+      }
+    },
+
+    "Workspace": {
+      "$className": "Workspace",
+
+      "CollisionParts": {
+        "$className": "Folder"
+      }
+    },
+
     "ReplicatedFirst": {
       "$className": "ReplicatedFirst",
       "$path": "src/ReplicatedFirst",
@@ -12,7 +35,11 @@
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
       "$path": "src/ReplicatedStorage",
-      "$ignoreUnknownInstances": true
+      "$ignoreUnknownInstances": true,
+
+      "ServerSettings": {
+        "$className": "Configuration"
+      }
     },
 
     "ServerScriptService": {
@@ -28,7 +55,29 @@
       "StarterPlayerScripts": {
         "$className": "StarterPlayerScripts",
         "$path": "src/StarterPlayer/StarterPlayerScripts",
-        "$ignoreUnknownInstances": true
+        "$ignoreUnknownInstances": true,
+
+        "Events": {
+          "$className": "Folder",
+
+          "ChunkLoadedBiome": {
+            "$className": "BindableEvent"
+          },
+
+          "ChunkLoadedTerrain": {
+            "$className": "BindableEvent"
+          }
+        },
+
+        "ClientSettings": {
+          "$className": "Configuration",
+
+          "$properties": {
+            "Attributes": {
+              "ChunkLoadingActors": {"Float64": 16}
+            }
+          }
+        }
       }
     }
   }

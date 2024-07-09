@@ -1,9 +1,14 @@
-local StarterPlayer = game:GetService('StarterPlayer')
+local Players = game:GetService('Players')
 
-local ForestGenerator = require(StarterPlayer.StarterPlayerScripts.Modules.Chunks.Loading.Terrain.Biomes.Forest.ForestGenerator)
-local DesertGenerator = require(StarterPlayer.StarterPlayerScripts.Modules.Chunks.Loading.Terrain.Biomes.Desert.DesertGenerator)
-local JungleGenerator = require(StarterPlayer.StarterPlayerScripts.Modules.Chunks.Loading.Terrain.Biomes.Jungle.JungleGenerator)
-local TundraGenerator = require(StarterPlayer.StarterPlayerScripts.Modules.Chunks.Loading.Terrain.Biomes.Tundra.TundraGenerator)
+local Player: Player = Players.LocalPlayer
+local PlayerScripts = Player.PlayerScripts
+
+local Modules = PlayerScripts:WaitForChild('Modules')
+
+local ForestGenerator = require(Modules.Chunks.Loading.Terrain.Biomes.Forest.ForestGenerator)
+local DesertGenerator = require(Modules.Chunks.Loading.Terrain.Biomes.Desert.DesertGenerator)
+local JungleGenerator = require(Modules.Chunks.Loading.Terrain.Biomes.Jungle.JungleGenerator)
+local TundraGenerator = require(Modules.Chunks.Loading.Terrain.Biomes.Tundra.TundraGenerator)
 
 return {
 	{

@@ -1,13 +1,18 @@
 local ForestGenerator = {}
 
-local StarterPlayer = game:GetService('StarterPlayer')
+local Players = game:GetService('Players')
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
+
+local Player: Player = Players.LocalPlayer
+local PlayerScripts = Player.PlayerScripts
+
+local Modules = PlayerScripts:WaitForChild('Modules')
 
 local ChunksUtil = require(ReplicatedStorage.Shared.ChunksUtil)
 local ChunkSettings = require(ReplicatedStorage.Shared.ChunkSettings)
 local ItemsData = require(ReplicatedStorage.Shared.ItemsData)
-local GrassLayerGenerator = require(StarterPlayer.StarterPlayerScripts.Modules.Chunks.Loading.Terrain.Biomes.Forest.GrassLayerGenerator)
---local TreesGenerator = require(StarterPlayer.StarterPlayerScripts.Modules.Chunks.Loading.Terrain.Biomes.Forest.Decorations.Trees.TreesGenerator)
+local GrassLayerGenerator = require(Modules.Chunks.Loading.Terrain.Biomes.Forest.GrassLayerGenerator)
+--local TreesGenerator = require(Modules.Chunks.Loading.Terrain.Biomes.Forest.Decorations.Trees.TreesGenerator)
 
 local CHUNK_SIZE: number = ChunkSettings['CHUNK_SIZE']
 

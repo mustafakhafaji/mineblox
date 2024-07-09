@@ -7,12 +7,17 @@ local ChunkRenderer = {}
 local AssetService = game:GetService("AssetService")
 local Atlas = AssetService:CreateEditableImageAsync("rbxassetid://17400483416")
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
-local StarterPlayer = game:GetService("StarterPlayer")
+local Players = game:GetService('Players')
 
-local ChunksData = require(StarterPlayer.StarterPlayerScripts.Modules.Chunks.Data.ChunksData)
-local BlockMeshData = require(StarterPlayer.StarterPlayerScripts.Modules.Chunks.Rendering.Data.BlockMeshData)
-local PlantMeshData = require(StarterPlayer.StarterPlayerScripts.Modules.Chunks.Rendering.Data.PlantMeshData)
-local AtlasTextureData = require(StarterPlayer.StarterPlayerScripts.Modules.Chunks.Rendering.Data.AtlasTextureData)
+local Player: Player = Players.LocalPlayer
+local PlayerScripts = Player.PlayerScripts
+
+local Modules = PlayerScripts:WaitForChild('Modules')
+
+local ChunksData = require(Modules.Chunks.Data.ChunksData)
+local BlockMeshData = require(Modules.Chunks.Rendering.Data.BlockMeshData)
+local PlantMeshData = require(Modules.Chunks.Rendering.Data.PlantMeshData)
+local AtlasTextureData = require(Modules.Chunks.Rendering.Data.AtlasTextureData)
 local ChunkSettings = require(ReplicatedStorage.Shared.ChunkSettings)
 local ChunksUtil = require(ReplicatedStorage.Shared.ChunksUtil)
 local ItemsData = require(ReplicatedStorage.Shared.ItemsData)
@@ -45,7 +50,7 @@ local BLOCK_NEIGHBOUR_VECTORS =
 
 -- PRIVATE
 
-function createFace(EditableMesh: EditableMesh, faceVertices, faceIndices, blockId, faceId, x, z, y)
+local function createFace(EditableMesh: EditableMesh, faceVertices, faceIndices, blockId, faceId, x, z, y)
 	local vertices = {}
 	for _, vertexOffset in faceVertices do
 		local vertexPosition = Vector3.new(x + vertexOffset.X, y + vertexOffset.Y, z + vertexOffset.Z)
@@ -70,7 +75,7 @@ function createFace(EditableMesh: EditableMesh, faceVertices, faceIndices, block
 end
 
 
-function getShouldSidesRender(chunkX: number, chunkZ: number, chunkY: number, x: number, z: number, y: number): {}
+local function getShouldSidesRender(chunkX: number, chunkZ: number, chunkY: number, x: number, z: number, y: number): {}
 	local shouldSidesRender = {false, false, false, false, false, false}
 	local worldPosition = ChunksUtil.chunkToWorldPosition(chunkX, chunkZ, chunkY, x, z, y)
 	
@@ -153,8 +158,9 @@ end
 
 
 function ChunkRenderer.unrenderChunk(chunkX: number, chunkZ: number, chunkY: number): ()
-	if workspace:FindFirstChild(`{chunkX}x{chunkZ}x{chunkY}`) then
-		workspace:FindFirstChild(`{chunkX}x{chunkZ}x{chunkY}`):Destroy()
+	local chunk = workspace:FindFirstChild(`{chunkX}x{chunkZ}x{chunkY}`)
+	if chunk then
+		chunk:Destroy()
 	end
 end
 
