@@ -79,7 +79,7 @@ end
 
 local function onChunkLoadingActorsChanged(): ()
 	local newValue = ClientSettings:GetAttribute('ChunkLoadingActors')
-	ClientSettings:SetAttribute('ChunkLoadingActors', math.clamp(newValue, 2, MAX_CHUNK_LOADING_ACTORS))
+	ClientSettings:SetAttribute('ChunkLoadingActors', math.clamp(math.floor(newValue), 2, MAX_CHUNK_LOADING_ACTORS))
 	newValue = ClientSettings:GetAttribute('ChunkLoadingActors')
 
 	chunkLoadingActors = newValue
