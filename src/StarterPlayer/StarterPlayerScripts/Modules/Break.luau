@@ -1,17 +1,19 @@
-local Destroy = {}
+local Break = {}
 
 local Players = game:GetService('Players')
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
-local StarterPlayer = game:GetService('StarterPlayer')
 local UserInputService = game:GetService('UserInputService')
 
-local ChunksData = require(StarterPlayer.StarterPlayerScripts.Modules.Chunks.Data.ChunksData)
-local ChunkRenderer = require(StarterPlayer.StarterPlayerScripts.Modules.Chunks.Rendering.ChunkRenderer)
+local Player: Player = Players.LocalPlayer
+local PlayerScripts = Player.PlayerScripts
+
+local Modules = PlayerScripts:WaitForChild('Modules')
+
+local ChunksData = require(Modules.Chunks.Data.ChunksData)
+local ChunkRenderer = require(Modules.Chunks.Rendering.ChunkRenderer)
 local ChunkSettings = require(ReplicatedStorage.Shared.ChunkSettings)
 local ChunksUtil = require(ReplicatedStorage.Shared.ChunksUtil)
 local ItemsData = require(ReplicatedStorage.Shared.ItemsData)
-
-local Player: Player = Players.LocalPlayer
 
 local mouse: Mouse = Player:GetMouse()
 local camera: Camera = workspace.CurrentCamera
@@ -23,12 +25,12 @@ local AIR_ID: number = ItemsData['Air']['ID']
 
 -- PRIVATE
 
-function roundToNearest(value: number, snap: number): number
+local function roundToNearest(value: number, snap: number): number
 	return math.round(value / snap) * snap
 end
 
 
-function handleInputBegan(input: InputObject, typing: boolean): ()
+local function handleInputBegan(input: InputObject, typing: boolean): ()
 	if 
 		typing 
 		or input.UserInputType ~= Enum.UserInputType.MouseButton1
@@ -102,4 +104,4 @@ end
 
 UserInputService.InputBegan:Connect(handleInputBegan)
 
-return Destroy
+return Break

@@ -68,7 +68,7 @@ local peaksAndValleysSquashFactorSpline = {
 
 -- PRIVATE
 
-function evaluateSpline(sequence: {}, x: number): (number)
+local function evaluateSpline(sequence: {}, x: number): (number)
 	if x <= -1 then
 		return sequence[1][2]
 	elseif x >= 1 then

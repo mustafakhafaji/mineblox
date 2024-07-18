@@ -2,9 +2,14 @@
 local TerrainShapeGenerator = {}
 
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
-local StarterPlayer = game:GetService('StarterPlayer')
+local Players = game:GetService('Players')
 
-local SplineMaps = require(StarterPlayer.StarterPlayerScripts.Modules.Chunks.Loading.Terrain.SplineMaps)
+local Player: Player = Players.LocalPlayer
+local PlayerScripts = Player.PlayerScripts
+
+local Modules = PlayerScripts:WaitForChild('Modules')
+
+local SplineMaps = require(Modules.Chunks.Loading.Terrain.SplineMaps)
 local ChunkSettings = require(ReplicatedStorage.Shared.ChunkSettings)
 local ChunksUtil = require(ReplicatedStorage.Shared.ChunksUtil)
 local ItemsData = require(ReplicatedStorage.Shared.ItemsData)
@@ -17,7 +22,7 @@ local squishFactor: number = 20
 
 -- PUBLIC
 
-function TerrainShapeGenerator.generate(chunkX: number, chunkZ: number, chunkY: number, chunkBlocks: buffer, SEED: number): ({})
+function TerrainShapeGenerator.generate(chunkX: number, chunkZ: number, chunkY: number, chunkBlocks: buffer, SEED: number): (buffer)
 	local baseHeights = {}
 	for x = 1, CHUNK_SIZE do
 		local worldPositionX: number = chunkX * CHUNK_SIZE + x

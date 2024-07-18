@@ -4,24 +4,34 @@ local ChunkLoading = {}
 local Players = game:GetService('Players')
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local RunService = game:GetService('RunService')
-local StarterPlayer = game:GetService("StarterPlayer")
 
-local ChunkRenderer = require(StarterPlayer.StarterPlayerScripts.Modules.Chunks.Rendering.ChunkRenderer)
-local ChunksData = require(StarterPlayer.StarterPlayerScripts.Modules.Chunks.Data.ChunksData)
-local ChunkGenerationStages = require(StarterPlayer.StarterPlayerScripts.Modules.Chunks.Data.ChunkGenerationStages)
+local Player: Player = Players.LocalPlayer
+local Character: Model = Player.Character or Player.CharacterAdded:Wait()
+local HumanoidRootPart: Part = Character:WaitForChild('HumanoidRootPart') :: Part
+local PlayerScripts = Player.PlayerScripts
+
+local Modules = PlayerScripts:WaitForChild('Modules')
+local Events = PlayerScripts:WaitForChild('Events')
+
+local ChunkRenderer = require(Modules.Chunks.Rendering.ChunkRenderer)
+local ChunksData = require(Modules.Chunks.Data.ChunksData)
+local ChunkGenerationStages = require(Modules.Chunks.Data.ChunkGenerationStages)
 local ChunkSettings = require(ReplicatedStorage.Shared.ChunkSettings)
 local ChunksUtil = require(ReplicatedStorage.Shared.ChunksUtil)
 local ItemsData = require(ReplicatedStorage.Shared.ItemsData)
 
-local Player: Player = Players.LocalPlayer
+local ParallelScripts = PlayerScripts:WaitForChild('ParallelScripts')
 
-local BiomeLoaderParallel: LocalScript = StarterPlayer.ParallelScripts.BiomeLoaderParallel
-local TerrainLoaderParallel: LocalScript = StarterPlayer.ParallelScripts.TerrainLoaderParallel
+local BiomeLoaderParallel: LocalScript = ParallelScripts.BiomeLoaderParallel
+local TerrainLoaderParallel: LocalScript = ParallelScripts.TerrainLoaderParallel
+
+local ClientSettings = PlayerScripts:WaitForChild('ClientSettings')
 
 local BLOCK_SIZE: number = ChunkSettings['BLOCK_SIZE']
 local CHUNK_SIZE: number = ChunkSettings['CHUNK_SIZE']
 local CHUNK_DISTANCE: number = ChunkSettings['CHUNK_DISTANCE']
 local MAX_CHUNK_DISTANCE: number = ChunkSettings['MAX_CHUNK_DISTANCE']
+local MAX_CHUNK_LOADING_ACTORS: number = ChunkSettings['MAX_CHUNK_LOADING_ACTORS']
 
 local LOAD_OFFSET: number = 2
 
@@ -37,9 +47,46 @@ local SEED: number = 500
 local framesSinceLastRender: number = 0
 local framesSinceLastLoad: number = 0
 
+local chunkLoadingActors: number = ClientSettings:GetAttribute('ChunkLoadingActors')
+local chunkLoadingActorsHalf: number = chunkLoadingActors // 2 -- Amount of biome and terrain actors seperately
+
+local terrainActors = table.create(chunkLoadingActorsHalf)
+local biomeActors = table.create(chunkLoadingActorsHalf)
+
+local ActorsFolder = Instance.new('Folder')
+ActorsFolder.Name = 'Actors'
+ActorsFolder.Parent = ParallelScripts
+
+-- Create actors for loadChunk()
+for i = 1, MAX_CHUNK_LOADING_ACTORS // 2 do
+	local terrainActor = Instance.new('Actor')
+	terrainActor.Name = 'TerrainActor' .. i
+	local terrainScript = TerrainLoaderParallel:Clone()
+	terrainScript.Parent = terrainActor
+	terrainActor.Parent = ActorsFolder
+
+	local biomeActor = Instance.new('Actor')
+	biomeActor.Name = 'BiomeActor' .. i
+	local biomeScript = BiomeLoaderParallel:Clone()
+	biomeScript.Parent = biomeActor
+	biomeActor.Parent = ActorsFolder
+
+	table.insert(terrainActors, terrainActor)
+	table.insert(biomeActors, biomeActor)
+end
+
 -- PRIVATE
 
-function renderChunks(toRender: {}): ()
+local function onChunkLoadingActorsChanged(): ()
+	local newValue = ClientSettings:GetAttribute('ChunkLoadingActors')
+	ClientSettings:SetAttribute('ChunkLoadingActors', math.clamp(math.floor(newValue), 2, MAX_CHUNK_LOADING_ACTORS))
+	newValue = ClientSettings:GetAttribute('ChunkLoadingActors')
+
+	chunkLoadingActors = newValue
+	chunkLoadingActorsHalf = newValue // 2
+end
+
+local function renderChunks(toRender: {}): ()
 	local chunksRendered: number = 0
 	for _, chunk in toRender do
 		local chunkX = chunk[1]
@@ -57,7 +104,7 @@ function renderChunks(toRender: {}): ()
 end
 
 
-function unrenderChunks(toUnrender: {}): ()
+local function unrenderChunks(toUnrender: {}): ()
 	local chunksUnrendered: number = 0
 	for i = #toUnrender, 1, -1 do
 		local chunk = toUnrender[i]
@@ -77,10 +124,8 @@ end
 
 
 -- Calls loadChunk() on every chunk to load
-function loadChunks(toLoad: {}): ()
+local function loadChunks(toLoad: {}): ()
 	local chunksTerrainLoaded: number = 0
-	local terrainActors = {}
-	local biomeActors = {}
 	
 	local chunksToLoadTerrain = {}
 	local chunksToLoadBiome = {}
@@ -96,11 +141,6 @@ function loadChunks(toLoad: {}): ()
 			end
 			ChunksData[chunkX][chunkZ][chunkY]['isLoading'] = true
 			
-			local actor = Instance.new('Actor')
-			local childScript = TerrainLoaderParallel:Clone()
-			childScript.Parent = actor
-			actor.Parent = Player.PlayerScripts
-			table.insert(terrainActors, actor)
 			table.insert(chunksToLoadTerrain, chunk)
 			
 			chunksTerrainLoaded += 1
@@ -114,11 +154,6 @@ function loadChunks(toLoad: {}): ()
 			end
 			ChunksData[chunkX][chunkZ][chunkY]['isLoading'] = true
 			
-			local actor = Instance.new('Actor')
-			local childScript = BiomeLoaderParallel:Clone()
-			childScript.Parent = actor
-			actor.Parent = Player.PlayerScripts
-			table.insert(biomeActors, actor)
 			table.insert(chunksToLoadBiome, chunk)
 		end
 	end
@@ -129,8 +164,7 @@ function loadChunks(toLoad: {}): ()
 			local chunkZ: number = chunk[2]
 			local chunkY: number = chunk[3]
 			
-			terrainActors[#terrainActors]:SendMessage('beginLoading', chunkX, chunkZ, chunkY, SEED)
-			table.remove(terrainActors, #terrainActors)
+			terrainActors[math.random(1, chunkLoadingActorsHalf)]:SendMessage('beginLoading', chunkX, chunkZ, chunkY, SEED)
 		end
 		
 		for _, chunk in chunksToLoadBiome do
@@ -143,15 +177,14 @@ function loadChunks(toLoad: {}): ()
 				[chunkX .. 'x' .. chunkZ .. 'x' .. chunkY - 1] = ChunksData[chunkX][chunkZ][chunkY - 1]['buffer']
 			}
 			
-			biomeActors[#biomeActors]:SendMessage('beginLoading', chunkX, chunkZ, chunkY, chunkBlocks, neighbouringChunks, SEED)
-			table.remove(biomeActors, #biomeActors)
+			biomeActors[math.random(1, chunkLoadingActorsHalf)]:SendMessage('beginLoading', chunkX, chunkZ, chunkY, chunkBlocks, neighbouringChunks, SEED)
 		end
 	end)
 end
 
 -- Returns chunks to render
-function findChunksToRender(): {}
-	local characterPosition: Vector3 = Player.Character.HumanoidRootPart.Position
+local function findChunksToRender(): {}
+	local characterPosition: Vector3 = HumanoidRootPart.Position
 	local characterPositionChunkX: number = characterPosition.X // (CHUNK_SIZE * BLOCK_SIZE)
 	local characterPositionChunkZ: number = characterPosition.Z // (CHUNK_SIZE * BLOCK_SIZE)
 	local characterPositionChunkY: number = characterPosition.Y // (CHUNK_SIZE * BLOCK_SIZE)
@@ -213,8 +246,8 @@ end
 
 
 -- Returns chunks to unrender
-function findChunksToUnrender(): {} --TODO not good has issues
-	local characterPosition: Vector3 = Player.Character.HumanoidRootPart.Position
+local function findChunksToUnrender(): {} --TODO not good has issues
+	local characterPosition: Vector3 = HumanoidRootPart.Position
 	local characterPositionChunkX: number = characterPosition.X // (CHUNK_SIZE * BLOCK_SIZE)
 	local characterPositionChunkZ: number = characterPosition.Z // (CHUNK_SIZE * BLOCK_SIZE)
 	local characterPositionChunkY: number = characterPosition.Y // (CHUNK_SIZE * BLOCK_SIZE)
@@ -263,8 +296,8 @@ end
 
 
 -- Returns the closest chunks to the character
-function findChunksToLoad(): {}
-	local characterPosition: Vector3 = Player.Character.HumanoidRootPart.Position
+local function findChunksToLoad(): {}
+	local characterPosition: Vector3 = HumanoidRootPart.Position
 	local characterPositionChunkX: number = characterPosition.X // (CHUNK_SIZE * BLOCK_SIZE)
 	local characterPositionChunkZ: number = characterPosition.Z // (CHUNK_SIZE * BLOCK_SIZE)
 	local characterPositionChunkY: number = characterPosition.Y // (CHUNK_SIZE * BLOCK_SIZE)
@@ -321,8 +354,8 @@ end
 
 
 -- Returns chunks not within character's range
-function unloadChunks(chunksToLoad: {}): ()
-	local characterPosition: Vector3 = Player.Character.HumanoidRootPart.Position
+local function unloadChunks(chunksToLoad: {}): ()
+	local characterPosition: Vector3 = HumanoidRootPart.Position
 	local characterPositionChunkX: number = characterPosition.X // (CHUNK_SIZE * BLOCK_SIZE)
 	local characterPositionChunkZ: number = characterPosition.Z // (CHUNK_SIZE * BLOCK_SIZE)
 	local characterPositionChunkY: number = characterPosition.Y // (CHUNK_SIZE * BLOCK_SIZE)
@@ -367,8 +400,8 @@ end
 
 
 -- Reorders table of chunks based on distance from player
-function reorderChunkPriority(chunks: {}): {}
-	local characterPosition: Vector3 = Player.Character.HumanoidRootPart.Position
+local function reorderChunkPriority(chunks: {}): {}
+	local characterPosition: Vector3 = HumanoidRootPart.Position
 	local characterPositionChunkX: number = characterPosition.X // (CHUNK_SIZE * BLOCK_SIZE)
 	local characterPositionChunkZ: number = characterPosition.Z // (CHUNK_SIZE * BLOCK_SIZE)
 	local characterPositionChunkY: number = characterPosition.Y // (CHUNK_SIZE * BLOCK_SIZE)
@@ -382,13 +415,10 @@ function reorderChunkPriority(chunks: {}): {}
 end
 
 
-function handleFrame(): ()
+local function handleFrame(): ()
 	framesSinceLastLoad += 1
 	framesSinceLastRender += 1
-	if 
-		not Player.Character 
-		or not Player.Character:FindFirstChild('HumanoidRootPart') 
-	then
+	if not HumanoidRootPart then
 		return
 	end
 	
@@ -421,13 +451,13 @@ function handleFrame(): ()
 	end
 end
 
-function handleChunkLoadedTerrain(chunkX: number, chunkZ: number, chunkY: number, chunkBlocks: buffer)
+local function handleChunkLoadedTerrain(chunkX: number, chunkZ: number, chunkY: number, chunkBlocks: buffer)
 	ChunksData[chunkX][chunkZ][chunkY]['buffer'] = chunkBlocks
 	ChunksData[chunkX][chunkZ][chunkY]['stage'] = ChunkGenerationStages['terrain']
 	ChunksData[chunkX][chunkZ][chunkY]['isLoading'] = false
 end
 
-function handleChunkLoadedBiome(chunkX: number, chunkZ: number, chunkY: number, chunkBlocks: buffer, neighbouringChunks: {})
+local function handleChunkLoadedBiome(chunkX: number, chunkZ: number, chunkY: number, chunkBlocks: buffer, neighbouringChunks: {})
 	ChunksData[chunkX][chunkZ][chunkY]['buffer'] = chunkBlocks
 	ChunksData[chunkX][chunkZ][chunkY]['stage'] = ChunkGenerationStages['done']
 	ChunksData[chunkX][chunkZ][chunkY]['isLoading'] = false
@@ -461,7 +491,9 @@ end
 
 RunService.Heartbeat:Connect(handleFrame)
 
-StarterPlayer.StarterPlayerScripts.Events.ChunkLoadedTerrain.Event:Connect(handleChunkLoadedTerrain)
-StarterPlayer.StarterPlayerScripts.Events.ChunkLoadedBiome.Event:Connect(handleChunkLoadedBiome)
+Events.ChunkLoadedTerrain.Event:Connect(handleChunkLoadedTerrain)
+Events.ChunkLoadedBiome.Event:Connect(handleChunkLoadedBiome)
+
+ClientSettings:GetAttributeChangedSignal('ChunkLoadingActors'):Connect(onChunkLoadingActorsChanged)
 
 return ChunkLoading
